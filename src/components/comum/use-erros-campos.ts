@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { startTransition, useCallback, useState } from "react";
 import type { Resultado } from "@/server/resultado";
 
 /**
@@ -29,4 +29,18 @@ export function useErrosCampos(estado: Resultado<unknown> | null) {
   }, []);
 
   return [erros, limpar] as const;
+}
+
+/**
+ * `onSubmit` que chama a action sem o reset automático do React 19 em
+ * `<form action>`: o reset dispara "change" no <select> escondido do Radix e
+ * volta os seletores (e os erros) ao estado inicial quando a validação falha.
+ * Uso: <form onSubmit={enviarSemResetar(acao)}>
+ */
+export function enviarSemResetar(acao: (form: FormData) => void) {
+  return (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const dados = new FormData(e.currentTarget);
+    startTransition(() => acao(dados));
+  };
 }

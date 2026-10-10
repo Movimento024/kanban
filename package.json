@@ -13,7 +13,8 @@
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",
     "seed:usuarios": "tsx scripts/seed-usuarios.ts",
-    "test:permissoes": "tsx scripts/testar-permissoes.ts"
+    "test:permissoes": "tsx scripts/testar-permissoes.ts",
+    "test:recorrencia": "tsx scripts/testar-recorrencia.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

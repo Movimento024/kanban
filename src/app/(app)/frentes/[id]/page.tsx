@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CabecalhoFrente } from "@/components/frentes/cabecalho-frente";
 import { ListaItens } from "@/components/frentes/lista-itens";
-import { AvisoLayoutEmBreve } from "@/components/frentes/aviso-layout";
+import { VistaCadencia } from "@/components/frentes/vista-cadencia";
 import { VistaLinhaDoTempo } from "@/components/frentes/vista-linha-do-tempo";
 import { ProvedorItens } from "@/components/itens/provedor-itens";
 import { listarFrentes, obterFrente } from "@/server/consultas/frentes";
@@ -39,14 +39,9 @@ async function ConteudoFrente({ params }: { params: PageProps<"/frentes/[id]">["
           totalItens={itens.length}
           eAdmin={eAdmin}
         />
-        {frente.layout === "linha_do_tempo" ? (
-          <VistaLinhaDoTempo frente={frente} itens={itens} />
-        ) : (
-          <>
-            {frente.layout === "cadencia" && <AvisoLayoutEmBreve layout={frente.layout} />}
-            <ListaItens frente={frente} itens={itens} />
-          </>
-        )}
+        {frente.layout === "linha_do_tempo" && <VistaLinhaDoTempo frente={frente} itens={itens} />}
+        {frente.layout === "cadencia" && <VistaCadencia frente={frente} itens={itens} />}
+        {frente.layout === "lista" && <ListaItens frente={frente} itens={itens} />}
       </div>
     </ProvedorItens>
   );

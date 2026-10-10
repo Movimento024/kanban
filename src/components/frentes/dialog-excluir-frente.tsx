@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Campo } from "@/components/comum/campo";
 import { MensagemErro } from "@/components/comum/mensagem-erro";
-import { useErrosCampos } from "@/components/comum/use-erros-campos";
+import { enviarSemResetar, useErrosCampos } from "@/components/comum/use-erros-campos";
 import { cn } from "@/lib/utils";
 import { excluirFrente } from "@/server/actions/frentes";
 
@@ -65,7 +65,7 @@ function FormExcluir({
     (modo === "excluir_itens" && confirmacao.trim() === frente.nome);
 
   return (
-    <form action={acao} onChange={limparErro} className="grid gap-4" noValidate>
+    <form onSubmit={enviarSemResetar(acao)} onChange={limparErro} className="grid gap-4" noValidate>
       {estado && !estado.ok && !estado.campos && <MensagemErro>{estado.erro}</MensagemErro>}
       <input type="hidden" name="id" value={frente.id} />
       <input type="hidden" name="modo" value={vazia ? "vazia" : modo} />

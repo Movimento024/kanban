@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Campo } from "@/components/comum/campo";
 import { MensagemErro } from "@/components/comum/mensagem-erro";
-import { useErrosCampos } from "@/components/comum/use-erros-campos";
+import { enviarSemResetar, useErrosCampos } from "@/components/comum/use-erros-campos";
 import {
   PAPEIS,
   REGIOES_PESSOA,
@@ -110,7 +110,7 @@ function FormUsuario({
   const [papel, setPapel] = useState<Papel>(perfil?.papel ?? "lider");
 
   return (
-    <form action={acao} onChange={limparErro} className="grid gap-4" noValidate>
+    <form onSubmit={enviarSemResetar(acao)} onChange={limparErro} className="grid gap-4" noValidate>
       {estado && !estado.ok && !estado.campos && <MensagemErro>{estado.erro}</MensagemErro>}
       {perfil && <input type="hidden" name="id" value={perfil.id} />}
       <Campo
@@ -239,7 +239,7 @@ function FormRedefinirSenha({ perfil, aoFechar }: { perfil: Perfil; aoFechar: ()
   useAoConcluir(estado, aoFechar);
 
   return (
-    <form action={acao} onChange={limparErro} className="grid gap-4" noValidate>
+    <form onSubmit={enviarSemResetar(acao)} onChange={limparErro} className="grid gap-4" noValidate>
       {estado && !estado.ok && !estado.campos && <MensagemErro>{estado.erro}</MensagemErro>}
       <input type="hidden" name="id" value={perfil.id} />
       <CampoSenhaInicial rotulo="Nova senha temporária" erro={erros?.senha} />
