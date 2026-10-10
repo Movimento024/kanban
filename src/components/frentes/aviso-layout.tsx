@@ -1,7 +1,7 @@
 import { Info } from "lucide-react";
 import { ROTULO_LAYOUT, type LayoutFrente } from "@/lib/constantes";
 
-const FASE: Partial<Record<LayoutFrente, number>> = { linha_do_tempo: 4, cadencia: 6 };
+const FASE: Partial<Record<LayoutFrente, number>> = { cadencia: 6 };
 
 /** Temporário: avisa que a visualização própria do tipo ainda não foi construída. */
 export function AvisoLayoutEmBreve({ layout }: { layout: LayoutFrente }) {

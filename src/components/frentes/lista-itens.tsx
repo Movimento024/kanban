@@ -32,31 +32,39 @@ import {
   BadgeStatus,
 } from "@/components/comum/badges";
 import { EstadoVazio } from "@/components/comum/estado-vazio";
+import { BotaoNovoItem } from "@/components/itens/botao-novo-item";
+import { useItens } from "@/components/itens/provedor-itens";
 import { ROTULO_STATUS, STATUS } from "@/lib/constantes";
 import { cn } from "@/lib/utils";
 import { reordenarItens } from "@/server/actions/itens";
 import type { Frente } from "@/server/consultas/frentes";
 import type { ItemResumo } from "@/server/consultas/itens";
 
+/** Conteúdo clicável da linha (abre o item). Só elementos inline dentro do botão. */
 function ConteudoLinha({ item }: { item: ItemResumo }) {
+  const { abrirItem } = useItens();
   return (
-    <>
-      <div className="min-w-0 flex-1">
-        <p
+    <button
+      type="button"
+      onClick={() => abrirItem(item)}
+      className="focus-visible:ring-ring flex min-w-0 flex-1 items-center gap-3 rounded-md text-left focus-visible:ring-2 focus-visible:outline-none"
+    >
+      <span className="block min-w-0 flex-1">
+        <span
           className={cn(
-            "truncate font-medium",
+            "block truncate font-medium",
             item.status === "cancelado" && "text-muted-foreground line-through",
           )}
         >
           {item.titulo}
-        </p>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        </span>
+        <span className="mt-1 flex flex-wrap items-center gap-1.5">
           <BadgeStatus status={item.status} />
           <BadgeRegiao regiao={item.regiao} />
           {!item.responsavel && <BadgeSemResponsavel />}
           <BadgeDecisoes total={item.decisoesAbertas} />
-        </div>
-      </div>
+        </span>
+      </span>
 
       {item.tarefasTotal > 0 && (
         <span
@@ -69,7 +77,7 @@ function ConteudoLinha({ item }: { item: ItemResumo }) {
         </span>
       )}
 
-      <div className="flex shrink-0 -space-x-1.5">
+      <span className="flex shrink-0 -space-x-1.5">
         {item.responsavel && (
           <AvatarPessoa
             nome={`${item.responsavel.nome} (responsável)`}
@@ -90,8 +98,8 @@ function ConteudoLinha({ item }: { item: ItemResumo }) {
             className="ring-background self-end opacity-90 ring-2"
           />
         ))}
-      </div>
-    </>
+      </span>
+    </button>
   );
 }
 
@@ -171,8 +179,10 @@ export function ListaItens({ frente, itens }: { frente: Frente; itens: ItemResum
     return (
       <EstadoVazio
         titulo={`Nenhum item em ${frente.nome} ainda`}
-        descricao="A criação de itens chega na próxima fase."
-      />
+        descricao="Crie o primeiro item desta frente."
+      >
+        <BotaoNovoItem frenteId={frente.id} />
+      </EstadoVazio>
     );
   }
 

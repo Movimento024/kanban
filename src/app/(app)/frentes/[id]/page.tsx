@@ -5,6 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CabecalhoFrente } from "@/components/frentes/cabecalho-frente";
 import { ListaItens } from "@/components/frentes/lista-itens";
 import { AvisoLayoutEmBreve } from "@/components/frentes/aviso-layout";
+import { VistaLinhaDoTempo } from "@/components/frentes/vista-linha-do-tempo";
+import { ProvedorItens } from "@/components/itens/provedor-itens";
 import { listarFrentes, obterFrente } from "@/server/consultas/frentes";
 import { listarItensDaFrente } from "@/server/consultas/itens";
 import { exigirPerfil } from "@/server/sessao";
@@ -26,17 +28,27 @@ async function ConteudoFrente({ params }: { params: PageProps<"/frentes/[id]">["
 
   const itens = await listarItensDaFrente(frente.id);
 
+  const eAdmin = perfil.papel === "admin";
+
   return (
-    <div className="grid gap-6">
-      <CabecalhoFrente
-        frente={frente}
-        outrasFrentes={frentes.filter((f) => f.id !== frente.id)}
-        totalItens={itens.length}
-        eAdmin={perfil.papel === "admin"}
-      />
-      {frente.layout !== "lista" && <AvisoLayoutEmBreve layout={frente.layout} />}
-      <ListaItens frente={frente} itens={itens} />
-    </div>
+    <ProvedorItens frentes={frentes} eAdmin={eAdmin}>
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6">
+        <CabecalhoFrente
+          frente={frente}
+          outrasFrentes={frentes.filter((f) => f.id !== frente.id)}
+          totalItens={itens.length}
+          eAdmin={eAdmin}
+        />
+        {frente.layout === "linha_do_tempo" ? (
+          <VistaLinhaDoTempo frente={frente} itens={itens} />
+        ) : (
+          <>
+            {frente.layout === "cadencia" && <AvisoLayoutEmBreve layout={frente.layout} />}
+            <ListaItens frente={frente} itens={itens} />
+          </>
+        )}
+      </div>
+    </ProvedorItens>
   );
 }
 

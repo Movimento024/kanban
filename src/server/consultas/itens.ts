@@ -11,7 +11,10 @@ export type PessoaResumo = Pick<
 export type ItemResumo = Pick<
   Tabelas["itens"]["Row"],
   | "id"
+  | "frente_id"
   | "titulo"
+  | "descricao"
+  | "data_hora"
   | "status"
   | "regiao"
   | "local"
@@ -30,7 +33,7 @@ export type ItemResumo = Pick<
 };
 
 const CAMPOS = `
-  id, titulo, status, regiao, local, ordem,
+  id, frente_id, titulo, descricao, status, regiao, local, ordem, data_hora,
   data_precisao, data_inicio, data_fim, data_periodo, data_texto,
   atribuicoes ( papel, perfis!atribuicoes_pessoa_id_fkey ( id, nome, iniciais, regiao, ativo ) ),
   tarefas ( concluida, archived_at ),

@@ -26,6 +26,7 @@ import {
 import { IconeFrente } from "@/components/frentes/icone-frente";
 import { DialogFrente } from "@/components/frentes/dialog-frente";
 import { DialogExcluirFrente } from "@/components/frentes/dialog-excluir-frente";
+import { BotaoNovoItem } from "@/components/itens/botao-novo-item";
 import { ROTULO_LAYOUT } from "@/lib/constantes";
 import { corFrente } from "@/lib/frentes";
 import { cn } from "@/lib/utils";
@@ -82,8 +83,9 @@ export function CabecalhoFrente({
       </div>
 
       <div className="flex items-center gap-1">
+        <BotaoNovoItem frenteId={frente.id} />
         <Button variant="outline" onClick={() => setAberto("editar")}>
-          <Pencil aria-hidden /> Editar
+          <Pencil aria-hidden /> Editar frente
         </Button>
         {/* Arquivar/excluir: só admin (o servidor e o banco também barram). */}
         {eAdmin && (

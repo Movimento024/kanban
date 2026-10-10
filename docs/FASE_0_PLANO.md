@@ -284,3 +284,11 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - Abas reordenáveis por arrastar (mouse; no toque, segurar ~0,3 s) e pelo teclado (espaço, setas, espaço). Enter continua abrindo a aba.
 - Frentes de Linha do tempo e Cadência mostram os itens em lista até as Fases 4 e 6.
 - Avisos (toasts) ficam embaixo, para não cobrir as abas.
+
+### Ajustes descobertos na Fase 4
+
+- Datas: `src/lib/datas` espelha a normalização do banco (para prévia e posicionamento) e formata conforme a precisão ("15/11/2026 · 19:30", "Janeiro/2027", "1º semestre de 2027", "Meio de 2027", "Data a definir").
+- Linha do tempo: 120 px por mês, de min(mês atual, item mais antigo) até dez/2028; cards com largura mínima e empilhados quando se sobrepõem; linha vermelha marca hoje.
+- Alternância Linha do tempo | Lista via `?vista=`; sem escolha, o celular vê a Lista e o computador a Linha do tempo (resolvido em CSS, sem piscar).
+- Clicar num card abre, por enquanto, um diálogo de edição; na Fase 5 vira o painel do item (mapa mental).
+- Arquivar item (admin) mostra um aviso com "Desfazer".
