@@ -1,0 +1,135 @@
+[
+  {
+    "nome": "Sthefany Almeida",
+    "email": "sthefany.almeida@exemplo.com",
+    "regiao": "SP_Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Caio Santos",
+    "email": "caio.santos@exemplo.com",
+    "regiao": "SP_Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Andréa de Aquino",
+    "email": "andrea.aquino@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Carolina Araújo",
+    "email": "carolina.araujo@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Gustavo Noan",
+    "email": "gustavo.noan@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Izabela Ribeiro",
+    "email": "izabela.ribeiro@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Jaqueline Damásio",
+    "email": "jaqueline.damasio@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "João Victor Façanha",
+    "email": "joao.facanha@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Luiz Climax",
+    "email": "luiz.climax@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Matheus Bastos",
+    "email": "matheus.bastos@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Vitor Santos",
+    "email": "vitor.santos@exemplo.com",
+    "regiao": "SP",
+    "papel": "admin",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Wallace Damásio",
+    "email": "wallace.damasio@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Yasmim Cruz",
+    "email": "yasmim.cruz@exemplo.com",
+    "regiao": "SP",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Débora Moura",
+    "email": "debora.moura@exemplo.com",
+    "regiao": "Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Ester Menezes",
+    "email": "ester.menezes@exemplo.com",
+    "regiao": "Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Jade Menezes",
+    "email": "jade.menezes@exemplo.com",
+    "regiao": "Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Marília Gabriela",
+    "email": "marilia.gabriela@exemplo.com",
+    "regiao": "Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Matheus Moura",
+    "email": "matheus.moura@exemplo.com",
+    "regiao": "Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  },
+  {
+    "nome": "Rebeca Moura",
+    "email": "rebeca.moura@exemplo.com",
+    "regiao": "Nordeste",
+    "papel": "lider",
+    "senha_inicial": "TROCAR-esta-senha-1"
+  }
+]

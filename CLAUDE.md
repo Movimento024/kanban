@@ -1,5 +1,7 @@
 # Movimento 024 — Planejamento
 
+@AGENTS.md
+
 Dashboard web colaborativo para o planejamento 2026–2028 do Movimento 024 (SP e Nordeste).
 Especificação completa: `docs/VISAO_PRODUTO.md`. Plano técnico e esquema: `docs/FASE_0_PLANO.md`.
 
@@ -29,15 +31,13 @@ Especificação completa: `docs/VISAO_PRODUTO.md`. Plano técnico e esquema: `do
 - Permissões garantidas no banco (RLS + triggers). Esconder botão na UI é só conveniência.
 - Schema muda **apenas** por migration nova em `supabase/migrations/` (nunca editar migration já aplicada). Depois de migrar, regenerar tipos: `pnpm db:types`.
 - Mobile first: testar toda tela em largura de celular.
+- Next 16: `src/proxy.ts` (não `middleware.ts`) e Cache Components ligado — toda leitura de dados/cookies dentro de `<Suspense>` com skeleton. Consultar `node_modules/next/dist/docs/` antes de usar APIs do Next.
 
 ## Segurança
 
-- `SUPABASE_SERVICE_ROLE_KEY` só no servidor; nunca em variável `NEXT_PUBLIC_*`, nunca importada por componente client (`import "server-only"`).
+- `SUPABASE_SECRET_KEY` só no servidor; nunca em variável `NEXT_PUBLIC_*`, nunca importada por componente client (`import "server-only"`).
 - Nada de senha ou e-mail real versionado. `seed/pessoas.local.json` e `.env*.local` estão no `.gitignore`.
 
-## Comandos (a partir da Fase 1)
+## Comandos
 
-- `pnpm dev` — desenvolvimento
-- `pnpm lint` / `pnpm format` / `pnpm typecheck`
-- `pnpm db:types` — gera `src/lib/supabase/database.types.ts`
-- `pnpm seed:usuarios` — cria as contas do Auth a partir de `seed/pessoas.local.json`
+Ver tabela no `README.md`. Antes de commitar: `pnpm lint && pnpm typecheck && pnpm build`; se mexeu no banco, `pnpm db:reset && pnpm test:permissoes`.
