@@ -32,7 +32,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--border-radius": "var(--radius)",
         } as React.CSSProperties
       }
+      containerAriaLabel="Avisos"
       toastOptions={{
+        closeButtonAriaLabel: "Fechar aviso",
         classNames: {
           toast: "cn-toast",
         },
