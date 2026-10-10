@@ -332,3 +332,8 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - Presença: canal Realtime `item:<id>` (Presence, sem gravar no banco). Risco aceito: canal público; quem tiver o id do item e a chave pública vê nomes de quem está no item.
 - `useAbrirItem` lê a query string na hora, para `abrir`/`fechar` terem identidade estável (senão cada atualização da rota recarregava o painel e apagava edições).
 - Aba Atividade: filtros por pessoa (inclui inativas), frente (inclui arquivadas), tipo de ação e período (hoje / 7 / 30 dias, no fuso de SP); 40 por página com "Carregar mais".
+
+### Ajustes descobertos na Fase 9 (busca e filtro global)
+
+- **Busca** na barra superior (botão ou Ctrl+K): itens, frentes e pessoas ativos; ignora acentos e maiúsculas; abrir um item usa `?item=` na tela atual.
+- **Filtro de região global** (barra superior): Todas / SP / Nordeste / Nacional. Vale para a Visão geral (o seletor de lá é o mesmo filtro) e para as abas de frente; guardado no navegador (localStorage). Com filtro ativo aparece "Mostrando só X · Ver todas"; no layout Lista, arrastar para reordenar fica desligado enquanto filtra. O Por líder mantém o próprio filtro de pessoas (Todos/SP/Nordeste), como pede a visão.

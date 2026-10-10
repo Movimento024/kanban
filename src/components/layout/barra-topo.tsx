@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SeletorRegiao } from "@/components/filtro-regiao/seletor-regiao";
 import { BarraAbas } from "@/components/layout/barra-abas";
+import { BuscaGlobal } from "@/components/layout/busca-global";
 import { MenuAvatar } from "@/components/layout/menu-avatar";
 import { listarFrentes } from "@/server/consultas/frentes";
 import { exigirPerfil } from "@/server/sessao";
@@ -35,8 +37,12 @@ export function BarraTopo() {
         <Link href="/" className="font-semibold tracking-tight whitespace-nowrap">
           Movimento 024
         </Link>
-        {/* Busca e filtro global de região entram com a Visão geral */}
-        <div className="flex-1" />
+        <div className="flex flex-1 items-center justify-end gap-2">
+          <Suspense fallback={<Skeleton className="size-8 rounded-md sm:w-56" />}>
+            <BuscaGlobal />
+          </Suspense>
+          <SeletorRegiao />
+        </div>
         <Suspense fallback={<Skeleton className="size-9 rounded-full" />}>
           <MenuUsuario />
         </Suspense>

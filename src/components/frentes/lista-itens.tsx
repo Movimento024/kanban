@@ -33,6 +33,8 @@ import {
 } from "@/components/comum/badges";
 import { EstadoVazio } from "@/components/comum/estado-vazio";
 import { BotaoNovoItem } from "@/components/itens/botao-novo-item";
+import { filtrarPorRegiao, useFiltroRegiao } from "@/components/filtro-regiao/use-filtro-regiao";
+import { AvisoFiltroRegiao } from "@/components/filtro-regiao/seletor-regiao";
 import { useItens } from "@/components/itens/provedor-itens";
 import { ROTULO_STATUS, STATUS } from "@/lib/constantes";
 import { cn } from "@/lib/utils";
@@ -142,6 +144,7 @@ export function ListaItens({ frente, itens }: { frente: Frente; itens: ItemResum
   const [itensProps, setItensProps] = useState(itens);
   const [agrupar, setAgrupar] = useState(false);
   const [, iniciar] = useTransition();
+  const [filtro] = useFiltroRegiao();
 
   if (itens !== itensProps) {
     setItensProps(itens);
@@ -186,13 +189,17 @@ export function ListaItens({ frente, itens }: { frente: Frente; itens: ItemResum
     );
   }
 
-  const semDono = ordem.filter((i) => !i.responsavel).length;
+  // Com filtro de região, a lista não reordena (a ordem é da frente inteira).
+  const visiveis = filtrarPorRegiao(ordem, filtro);
+  const filtrada = filtro !== "todos";
+  const semDono = visiveis.filter((i) => !i.responsavel).length;
 
   return (
     <section className="grid gap-3" aria-label={`Itens de ${frente.nome}`}>
+      <AvisoFiltroRegiao ocultos={ordem.length - visiveis.length} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-muted-foreground text-sm">
-          {ordem.length} {ordem.length === 1 ? "item" : "itens"}
+          {visiveis.length} {visiveis.length === 1 ? "item" : "itens"}
           {semDono > 0 && ` · ${semDono} sem responsável`}
         </p>
         <div className="flex items-center gap-2">
@@ -206,7 +213,7 @@ export function ListaItens({ frente, itens }: { frente: Frente; itens: ItemResum
       {agrupar ? (
         <div className="grid gap-5">
           {STATUS.map((s) => {
-            const doStatus = ordem.filter((i) => i.status === s);
+            const doStatus = visiveis.filter((i) => i.status === s);
             if (!doStatus.length) return null;
             return (
               <div key={s} className="grid gap-2">
@@ -224,6 +231,14 @@ export function ListaItens({ frente, itens }: { frente: Frente; itens: ItemResum
             );
           })}
         </div>
+      ) : filtrada ? (
+        <ul className="grid gap-2">
+          {visiveis.map((i) => (
+            <li key={i.id} className={classeLinha}>
+              <ConteudoLinha item={i} />
+            </li>
+          ))}
+        </ul>
       ) : (
         <DndContext
           id={`lista-${frente.id}`}
