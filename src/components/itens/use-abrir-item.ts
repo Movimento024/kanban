@@ -12,21 +12,23 @@ export function useAbrirItem() {
   const caminho = usePathname();
   const params = useSearchParams();
 
+  // Lê a query string na hora (e não de useSearchParams) para abrir/fechar terem
+  // identidade estável: atualizações da rota (ex.: tempo real) não recarregam o painel.
   const abrir = useCallback(
     (id: string) => {
-      const p = new URLSearchParams(params);
+      const p = new URLSearchParams(window.location.search);
       p.set("item", id);
       router.push(`${caminho}?${p}`, { scroll: false });
     },
-    [router, caminho, params],
+    [router, caminho],
   );
 
   const fechar = useCallback(() => {
-    const p = new URLSearchParams(params);
+    const p = new URLSearchParams(window.location.search);
     p.delete("item");
     const qs = p.toString();
     router.replace(qs ? `${caminho}?${qs}` : caminho, { scroll: false });
-  }, [router, caminho, params]);
+  }, [router, caminho]);
 
   return { itemAberto: params.get("item"), abrir, fechar };
 }

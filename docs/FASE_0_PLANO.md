@@ -324,3 +324,11 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - Filtro de região da Visão geral: "SP" mostra só itens de SP (Nacional é opção à parte). No Por líder, quem é "SP e Nordeste" aparece nos dois filtros.
 - **Atribuição rápida** (Por líder › Atribuição rápida): arrastar pessoa(s) até um item no computador, ou tocar nas pessoas e depois no item; sempre confirma o papel. Com várias pessoas, só apoio. Virar responsável passa o anterior para apoio.
 - Visão individual: tarefas podem ser concluídas ali mesmo.
+
+### Ajustes descobertos na Fase 8
+
+- Tempo real: um canal por sessão escuta `atividades` (INSERT) e `frentes`/`itens` (UPDATE, para reordenações) e atualiza a tela com `router.refresh()` (espera 600 ms para agrupar mudanças). O canal recebe o token do usuário antes de assinar (sem isso entra como anônimo e o RLS filtra tudo).
+- Painel do item: mudanças de outras pessoas recarregam o painel; se eu estiver com "Editar detalhes" aberto e alguém editar o item, aparece o aviso "Este item foi alterado por X agora há pouco" (Recarregar / Continuar editando — última gravação vence).
+- Presença: canal Realtime `item:<id>` (Presence, sem gravar no banco). Risco aceito: canal público; quem tiver o id do item e a chave pública vê nomes de quem está no item.
+- `useAbrirItem` lê a query string na hora, para `abrir`/`fechar` terem identidade estável (senão cada atualização da rota recarregava o painel e apagava edições).
+- Aba Atividade: filtros por pessoa (inclui inativas), frente (inclui arquivadas), tipo de ação e período (hoje / 7 / 30 dias, no fuso de SP); 40 por página com "Carregar mais".
