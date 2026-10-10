@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-// Arquivados (itens, tarefas, decisões, notas) entra com o painel do item.
 const LINKS = [
   { href: "/admin/usuarios", rotulo: "Usuários" },
   { href: "/admin/frentes", rotulo: "Frentes" },
+  { href: "/admin/arquivados", rotulo: "Arquivados" },
 ];
 
 export function NavAdmin() {

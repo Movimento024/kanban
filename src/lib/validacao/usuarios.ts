@@ -53,16 +53,16 @@ export const criarUsuarioSchema = z.object({
 });
 
 export const editarUsuarioSchema = z.object({
-  id: z.uuid(),
+  id: z.guid(),
   nome,
   email,
   regiao,
   papel,
 });
 
-export const redefinirSenhaSchema = z.object({ id: z.uuid(), senha: senhaSchema });
+export const redefinirSenhaSchema = z.object({ id: z.guid(), senha: senhaSchema });
 
-export const idSchema = z.object({ id: z.uuid() });
+export const idSchema = z.object({ id: z.guid() });
 
 /** "Andréa de Aquino" → "AA" */
 export function gerarIniciais(nomeCompleto: string) {

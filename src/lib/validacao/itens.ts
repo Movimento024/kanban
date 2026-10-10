@@ -26,7 +26,7 @@ export const itemSchema = z
       .min(2, "Informe o título.")
       .max(120, "Título muito longo (máx. 120)."),
     descricao: textoOpcional(2000, "Descrição muito longa."),
-    frente_id: z.uuid({ error: "Escolha a frente." }),
+    frente_id: z.guid({ error: "Escolha a frente." }),
     regiao: z.enum(REGIOES_ITEM, { error: "Escolha a região." }),
     local: textoOpcional(120, "Local muito longo."),
     status: z.enum(STATUS, { error: "Escolha o status." }),

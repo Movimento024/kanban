@@ -19,16 +19,16 @@ export const frenteSchema = z.object({
   layout: z.enum(LAYOUTS, { error: "Escolha o tipo de visualização." }),
 });
 
-export const editarFrenteSchema = frenteSchema.extend({ id: z.uuid() });
+export const editarFrenteSchema = frenteSchema.extend({ id: z.guid() });
 
-export const idsSchema = z.array(z.uuid()).min(1).max(200);
+export const idsSchema = z.array(z.guid()).min(1).max(200);
 
 export const excluirFrenteSchema = z.discriminatedUnion("modo", [
-  z.object({ id: z.uuid(), modo: z.literal("vazia") }),
+  z.object({ id: z.guid(), modo: z.literal("vazia") }),
   z.object({
-    id: z.uuid(),
+    id: z.guid(),
     modo: z.literal("mover"),
-    destino: z.uuid({ error: "Escolha a frente que vai receber os itens." }),
+    destino: z.guid({ error: "Escolha a frente que vai receber os itens." }),
   }),
-  z.object({ id: z.uuid(), modo: z.literal("excluir_itens"), confirmacao: z.string() }),
+  z.object({ id: z.guid(), modo: z.literal("excluir_itens"), confirmacao: z.string() }),
 ]);

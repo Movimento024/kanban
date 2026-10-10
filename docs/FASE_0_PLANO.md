@@ -292,3 +292,13 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - Alternância Linha do tempo | Lista via `?vista=`; sem escolha, o celular vê a Lista e o computador a Linha do tempo (resolvido em CSS, sem piscar).
 - Clicar num card abre, por enquanto, um diálogo de edição; na Fase 5 vira o painel do item (mapa mental).
 - Arquivar item (admin) mostra um aviso com "Desfazer".
+
+### Ajustes descobertos na Fase 5
+
+- O item aberto fica na URL (`?item=<id>`), em qualquer tela; o painel é montado no layout. Link compartilhável funciona inclusive passando pelo login.
+- Ao criar um item, o painel dele abre em seguida. O antigo diálogo de edição virou a seção "Editar detalhes do item" dentro do painel.
+- **Atribuição de responsável**: como só pode haver um, ao tornar alguém responsável o anterior passa para **apoio** (ninguém sai do item sem querer).
+- Decisão com "campo relacionado" (local/data): ao decidir, o painel oferece atualizar o local do item (ou abrir a edição da data). Há também o atalho "usar como local" ao lado da opção escolhida.
+- Validação de IDs com `z.guid()` (aceita qualquer UUID do Postgres; `z.uuid()` do Zod 4 recusava os IDs fixos do seed).
+- React Flow 12: nós precisam de `width/height` explícitos (senão ficam invisíveis até medir) e de um `onNodeClick` (senão os botões dentro deles não recebem clique).
+- Admin › Arquivados: itens, tarefas, decisões, opções e notas arquivados, com Restaurar e Excluir.

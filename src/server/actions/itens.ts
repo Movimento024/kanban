@@ -51,7 +51,7 @@ export async function editarItem(
   form: FormData,
 ): Promise<Resultado<{ id: string }>> {
   if (!(await obterPerfilAtual())) return falha(SESSAO_EXPIRADA);
-  const id = z.uuid().safeParse(form.get("id"));
+  const id = z.guid().safeParse(form.get("id"));
   if (!id.success) return falha("Item inválido.");
   const parsed = itemSchema.safeParse(dadosDoForm(form));
   if (!parsed.success) return falha("Confira os campos.", errosDeCampo(parsed.error));
@@ -71,7 +71,7 @@ export async function arquivarItem(id: string, arquivar: boolean): Promise<Resul
   const perfil = await obterPerfilAtual();
   if (!perfil) return falha(SESSAO_EXPIRADA);
   if (perfil.papel !== "admin") return falha(SO_ADMIN);
-  if (!z.uuid().safeParse(id).success) return falha("Item inválido.");
+  if (!z.guid().safeParse(id).success) return falha("Item inválido.");
 
   const supabase = await criarClienteServidor();
   const { error } = await supabase
@@ -88,7 +88,7 @@ export async function excluirItem(id: string): Promise<Resultado> {
   const perfil = await obterPerfilAtual();
   if (!perfil) return falha(SESSAO_EXPIRADA);
   if (perfil.papel !== "admin") return falha(SO_ADMIN);
-  if (!z.uuid().safeParse(id).success) return falha("Item inválido.");
+  if (!z.guid().safeParse(id).success) return falha("Item inválido.");
 
   const supabase = await criarClienteServidor();
   const { error, count } = await supabase.from("itens").delete({ count: "exact" }).eq("id", id);
@@ -101,7 +101,7 @@ export async function excluirItem(id: string): Promise<Resultado> {
 
 export async function reordenarItens(frenteId: string, ids: string[]): Promise<Resultado> {
   if (!(await obterPerfilAtual())) return falha(SESSAO_EXPIRADA);
-  const frente = z.uuid().safeParse(frenteId);
+  const frente = z.guid().safeParse(frenteId);
   const parsed = idsSchema.safeParse(ids);
   if (!frente.success || !parsed.success) return falha("Ordem inválida.");
 

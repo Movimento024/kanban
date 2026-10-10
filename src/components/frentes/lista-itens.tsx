@@ -46,7 +46,7 @@ function ConteudoLinha({ item }: { item: ItemResumo }) {
   return (
     <button
       type="button"
-      onClick={() => abrirItem(item)}
+      onClick={() => abrirItem(item.id)}
       className="focus-visible:ring-ring flex min-w-0 flex-1 items-center gap-3 rounded-md text-left focus-visible:ring-2 focus-visible:outline-none"
     >
       <span className="block min-w-0 flex-1">

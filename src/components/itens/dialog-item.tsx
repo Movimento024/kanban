@@ -1,19 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
-import { Archive, Loader2, MoreHorizontal, Trash2 } from "lucide-react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -22,12 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -49,9 +33,28 @@ import {
   type RegiaoItem,
   type StatusItem,
 } from "@/lib/constantes";
-import { arquivarItem, criarItem, editarItem, excluirItem } from "@/server/actions/itens";
+import { AcoesAdminItem } from "@/components/itens/acoes-admin-item";
+import { criarItem, editarItem } from "@/server/actions/itens";
+import type { Database } from "@/lib/supabase/database.types";
 import type { Frente } from "@/server/consultas/frentes";
-import type { ItemResumo } from "@/server/consultas/itens";
+
+/** Campos do item que o formulário edita (ItemResumo e ItemCompleto servem). */
+export type ItemEditavel = Pick<
+  Database["public"]["Tables"]["itens"]["Row"],
+  | "id"
+  | "titulo"
+  | "descricao"
+  | "frente_id"
+  | "regiao"
+  | "local"
+  | "status"
+  | "data_precisao"
+  | "data_inicio"
+  | "data_fim"
+  | "data_hora"
+  | "data_periodo"
+  | "data_texto"
+>;
 
 /** Valores iniciais para um item novo (ex.: clique numa raia da linha do tempo). */
 export type PadraoItem = {
@@ -60,7 +63,7 @@ export type PadraoItem = {
   data?: Partial<ValorData>;
 };
 
-function dataDoItem(item: ItemResumo): ValorData {
+function dataDoItem(item: ItemEditavel): ValorData {
   const ini = item.data_inicio ?? "";
   return {
     ...DATA_VAZIA,
@@ -78,18 +81,26 @@ function dataDoItem(item: ItemResumo): ValorData {
 
 const classeCampo = "h-10 w-full md:h-9";
 
-function FormItem({
+/**
+ * Formulário de item. No diálogo, fecha ao salvar; embutido no painel do item,
+ * só salva (as ações de admin ficam no cabeçalho do painel).
+ */
+export function FormItem({
   item,
   padrao,
   frentes,
   eAdmin,
   aoFechar,
+  aoSalvar,
+  embutido = false,
 }: {
-  item?: ItemResumo;
+  item?: ItemEditavel;
   padrao?: PadraoItem;
   frentes: Frente[];
   eAdmin: boolean;
   aoFechar: () => void;
+  aoSalvar?: (id: string) => void;
+  embutido?: boolean;
 }) {
   const [estado, acao, pendente] = useActionState(item ? editarItem : criarItem, null);
   const [erros, limparErro] = useErrosCampos(estado);
@@ -102,49 +113,18 @@ function FormItem({
   const [data, setData] = useState<ValorData>(
     item ? dataDoItem(item) : { ...DATA_VAZIA, ...padrao?.data },
   );
-  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
-  const [acaoPendente, iniciar] = useTransition();
   const tratado = useRef<typeof estado>(null);
 
   useEffect(() => {
     if (estado?.ok && tratado.current !== estado) {
       tratado.current = estado;
       toast.success(estado.mensagem);
-      aoFechar();
+      if (!embutido) aoFechar();
+      aoSalvar?.(estado.data.id);
     }
-  }, [estado, aoFechar]);
+  }, [estado, aoFechar, aoSalvar, embutido]);
 
-  function arquivar() {
-    if (!item) return;
-    iniciar(async () => {
-      const r = await arquivarItem(item.id, true);
-      if (!r.ok) return void toast.error(r.erro);
-      aoFechar();
-      toast.success(r.mensagem, {
-        action: {
-          label: "Desfazer",
-          onClick: async () => {
-            const d = await arquivarItem(item.id, false);
-            if (d.ok) toast.success(d.mensagem);
-            else toast.error(d.erro);
-          },
-        },
-      });
-    });
-  }
-
-  function excluir() {
-    if (!item) return;
-    iniciar(async () => {
-      const r = await excluirItem(item.id);
-      if (!r.ok) return void toast.error(r.erro);
-      setConfirmarExclusao(false);
-      aoFechar();
-      toast.success(r.mensagem);
-    });
-  }
-
-  const ocupado = pendente || acaoPendente;
+  const ocupado = pendente;
 
   return (
     <form action={acao} onChange={limparErro} className="grid gap-4" noValidate>
@@ -155,7 +135,7 @@ function FormItem({
         rotulo="Título"
         name="titulo"
         required
-        autoFocus={!item}
+        autoFocus={!item && !embutido}
         maxLength={120}
         placeholder="Ex.: Mov Day Petrolina"
         value={titulo}
@@ -247,70 +227,28 @@ function FormItem({
         />
       </div>
 
-      <DialogFooter className="items-center sm:justify-between">
-        {/* Arquivar/excluir: só admin. Arquivar é o recomendado; excluir fica no menu secundário. */}
-        {item && eAdmin ? (
-          <div className="flex items-center gap-1">
-            <Button type="button" variant="outline" onClick={arquivar} disabled={ocupado}>
-              <Archive aria-hidden /> Arquivar
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Mais ações do item"
-                  disabled={ocupado}
-                >
-                  <MoreHorizontal aria-hidden />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-48">
-                <DropdownMenuItem variant="destructive" onSelect={() => setConfirmarExclusao(true)}>
-                  <Trash2 aria-hidden /> Excluir definitivamente
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        ) : (
-          <span />
-        )}
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={aoFechar} disabled={ocupado}>
-            Cancelar
-          </Button>
+      {embutido ? (
+        <div className="flex justify-end">
           <Button type="submit" disabled={ocupado}>
             {pendente && <Loader2 className="animate-spin" aria-hidden />}
-            {item ? "Salvar" : "Criar item"}
+            Salvar alterações
           </Button>
         </div>
-      </DialogFooter>
-
-      <AlertDialog open={confirmarExclusao} onOpenChange={setConfirmarExclusao}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir “{item?.titulo}” definitivamente?</AlertDialogTitle>
-            <AlertDialogDescription>
-              O item, as tarefas, decisões e notas dele somem para sempre. Se quiser só tirar das
-              telas, use Arquivar.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={acaoPendente}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              disabled={acaoPendente}
-              onClick={(e) => {
-                e.preventDefault();
-                excluir();
-              }}
-            >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      ) : (
+        <DialogFooter className="items-center sm:justify-between">
+          {/* Arquivar/excluir: só admin. */}
+          {item && eAdmin ? <AcoesAdminItem item={item} aoRemover={aoFechar} /> : <span />}
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={aoFechar} disabled={ocupado}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={ocupado}>
+              {pendente && <Loader2 className="animate-spin" aria-hidden />}
+              {item ? "Salvar" : "Criar item"}
+            </Button>
+          </div>
+        </DialogFooter>
+      )}
     </form>
   );
 }
@@ -322,13 +260,15 @@ export function DialogItem({
   frentes,
   eAdmin,
   aoFechar,
+  aoCriar,
 }: {
   aberto: boolean;
-  item?: ItemResumo;
+  item?: ItemEditavel;
   padrao?: PadraoItem;
   frentes: Frente[];
   eAdmin: boolean;
   aoFechar: () => void;
+  aoCriar?: (id: string) => void;
 }) {
   return (
     <Dialog open={aberto} onOpenChange={(o) => !o && aoFechar()}>
@@ -336,9 +276,8 @@ export function DialogItem({
         <DialogHeader>
           <DialogTitle>{item ? "Editar item" : "Novo item"}</DialogTitle>
           <DialogDescription>
-            {item
-              ? "Tarefas, decisões, notas e pessoas chegam com o painel do item."
-              : "Qualquer ação é um item: um evento, uma viagem, um podcast, uma ação social."}
+            Qualquer ação é um item: um evento, uma viagem, um podcast, uma ação social. Depois de
+            criar, o item abre para você adicionar pessoas, tarefas, decisões e notas.
           </DialogDescription>
         </DialogHeader>
         {aberto && (
@@ -349,6 +288,7 @@ export function DialogItem({
             frentes={frentes}
             eAdmin={eAdmin}
             aoFechar={aoFechar}
+            aoSalvar={item ? undefined : aoCriar}
           />
         )}
       </DialogContent>

@@ -25,6 +25,8 @@ export function traduzirErro(erro: { message?: string; code?: string } | null | 
   // Postgres: mensagens dos nossos triggers já vêm em português
   if (code === "42501" || code === "23514") return msg || "Você não tem permissão para isso.";
   if (code === "23505") return "Já existe um registro com esses dados.";
+  if (code === "23503")
+    return "Não dá para excluir porque está em uso (por exemplo, é a opção escolhida de uma decisão).";
   return "Algo deu errado. Tente de novo em instantes.";
 }
 

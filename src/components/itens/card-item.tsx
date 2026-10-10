@@ -72,7 +72,7 @@ export function CardItem({
       type="button"
       onClick={(e) => {
         e.stopPropagation();
-        abrirItem(item);
+        abrirItem(item.id);
       }}
       style={style}
       title={item.data_texto ? `${item.titulo} — ${data} (${item.data_texto})` : item.titulo}
