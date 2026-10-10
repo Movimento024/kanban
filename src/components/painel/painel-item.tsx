@@ -12,12 +12,14 @@ import {
   Pencil,
   Repeat,
   UserPlus,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -189,6 +191,8 @@ export function PainelItem({
     <Sheet open={!!itemAberto} onOpenChange={(o) => !o && fechar()}>
       <SheetContent
         side="right"
+        // O X padrão fica embaixo do cabeçalho fixo e some ao rolar: usamos o do cabeçalho.
+        showCloseButton={false}
         // Esc com um campo em edição só cancela a edição (não fecha o painel).
         onEscapeKeyDown={(e) => {
           const alvo = document.activeElement;
@@ -206,7 +210,8 @@ export function PainelItem({
           <CarregandoPainel />
         ) : (
           <Painel.Provider value={contexto}>
-            <SheetHeader className="bg-popover/95 sticky top-0 z-10 gap-2 border-b p-4 pr-12 backdrop-blur">
+            <SheetHeader className="bg-popover/95 sticky top-0 z-10 gap-2 border-b p-4 pr-14 backdrop-blur">
+              <BotaoFechar />
               {item.frente && (
                 <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
                   <span
@@ -371,9 +376,22 @@ export function PainelItem({
   );
 }
 
+/** Sempre visível (fica no cabeçalho fixo); área de toque generosa no celular. */
+function BotaoFechar() {
+  return (
+    <SheetClose asChild>
+      <Button variant="ghost" size="icon" className="absolute top-2.5 right-2.5 size-10">
+        <X className="size-5" aria-hidden />
+        <span className="sr-only">Fechar</span>
+      </Button>
+    </SheetClose>
+  );
+}
+
 function CarregandoPainel() {
   return (
-    <div className="grid gap-4 p-4" aria-busy="true">
+    <div className="relative grid gap-4 p-4 pr-14" aria-busy="true">
+      <BotaoFechar />
       <SheetTitle className="sr-only">Carregando item</SheetTitle>
       <Skeleton className="h-4 w-24" />
       <Skeleton className="h-7 w-2/3" />

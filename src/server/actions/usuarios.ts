@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
-import { errosDeCampo, traduzirErro } from "@/lib/erros";
+import { errosDeCampo, traduzirErro, traduzirErroAdmin } from "@/lib/erros";
 import {
   criarUsuarioSchema,
   dadosDoForm,
@@ -41,7 +41,8 @@ export async function criarUsuario(_: Resultado | null, form: FormData): Promise
     user_metadata: { nome: d.nome },
   });
   if (error) {
-    const msg = traduzirErro(error);
+    console.error("[admin] Auth:", error.status, error.message);
+    const msg = traduzirErroAdmin(error);
     return falha(msg, /e-mail/.test(msg) ? { email: msg } : undefined);
   }
 
@@ -87,7 +88,7 @@ export async function editarUsuario(_: Resultado | null, form: FormData): Promis
       email_confirm: true,
     });
     if (error) {
-      const msg = traduzirErro(error);
+      const msg = traduzirErroAdmin(error);
       return falha(msg, /e-mail/.test(msg) ? { email: msg } : undefined);
     }
   }
@@ -123,7 +124,8 @@ export async function alterarAtivo(id: string, ativo: boolean): Promise<Resultad
   });
   if (erroAuth) {
     await supabase.from("perfis").update({ ativo: !ativo }).eq("id", id);
-    return falha(traduzirErro(erroAuth));
+    console.error("[admin] Auth:", erroAuth.status, erroAuth.message);
+    return falha(traduzirErroAdmin(erroAuth));
   }
 
   revalidatePath("/admin/usuarios");
@@ -139,7 +141,11 @@ export async function redefinirSenha(_: Resultado | null, form: FormData): Promi
   const { error } = await criarClienteAdmin().auth.admin.updateUserById(parsed.data.id, {
     password: parsed.data.senha,
   });
-  if (error) return falha(traduzirErro(error), { senha: traduzirErro(error) });
+  if (error) {
+    console.error("[admin] Auth:", error.status, error.message);
+    const msg = traduzirErroAdmin(error);
+    return falha(msg, { senha: msg });
+  }
 
   const supabase = await criarClienteServidor();
   const { error: erroPerfil } = await supabase

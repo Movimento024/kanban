@@ -30,6 +30,18 @@ export function traduzirErro(erro: { message?: string; code?: string } | null | 
   return "Algo deu errado. Tente de novo em instantes.";
 }
 
+/**
+ * Erros da Admin API do Auth (criar/editar contas). 401/403 aqui quer dizer que a
+ * chave secreta do servidor está ausente ou errada — não é culpa de quem usa.
+ */
+export function traduzirErroAdmin(
+  erro: { message?: string; code?: string; status?: number } | null | undefined,
+): string {
+  if (erro?.status === 401 || erro?.status === 403 || /invalid api key/i.test(erro?.message ?? ""))
+    return "O servidor não está autorizado a gerenciar contas. Confira a chave secreta (SUPABASE_SECRET_KEY) na Vercel.";
+  return traduzirErro(erro);
+}
+
 /** Converte um erro do Zod em { campo: mensagem } (primeira mensagem de cada campo). */
 export function errosDeCampo(erro: ZodError): Record<string, string> {
   const campos: Record<string, string> = {};
