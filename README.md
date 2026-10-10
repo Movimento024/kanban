@@ -72,21 +72,37 @@ pnpm seed:usuarios seed/admin.local.json --env .env.nuvem.local
 | `pnpm test:permissoes`                         | verifica a matriz de permissões direto no banco (local)            |
 | `pnpm test:recorrencia`                        | confere o cálculo da próxima ocorrência (layout Cadência)          |
 
-## Criando o primeiro admin (produção)
+## Publicando em produção (Supabase + Vercel)
 
-Contas só são criadas por um admin — não há cadastro aberto. Para o primeiro (Vitor Santos):
+Tudo cabe nos planos gratuitos. Ordem recomendada:
 
-1. No projeto Supabase da nuvem, em **Authentication → Sign In / Providers**, desative
-   **"Allow new users to sign up"** e mantenha o provedor **Email** ativo.
-2. Em **Authentication → Hooks**, ative **Customize Access Token (JWT) Claims** apontando para a
-   função `public.custom_access_token_hook` (Postgres). Sem isso, o redirecionamento de troca de senha
-   e de admin não funciona.
-3. Aplique as migrations: `pnpm exec supabase link --project-ref <ref>` e `pnpm exec supabase db push`.
-   Para os dados iniciais, rode o conteúdo de `supabase/seed.sql` no SQL Editor (uma única vez).
-4. Crie `seed/pessoas.local.json` contendo **apenas** a linha do Vitor Santos, com o e-mail real,
-   `"papel": "admin"` e uma senha inicial forte.
-5. Aponte `.env.local` temporariamente para o projeto da nuvem (URL + secret key) e rode `pnpm seed:usuarios`.
-6. Entre no app com essa senha; o sistema pedirá a troca. A partir daí, as demais contas são criadas em **Admin › Usuários**.
+1. **Supabase (nuvem)** — no painel do projeto:
+   - **Authentication → Sign In / Providers**: desative **"Allow new users to sign up"** e mantenha o
+     provedor **Email** ativo (contas só são criadas por um admin).
+   - **Authentication → Hooks**: ative **Customize Access Token (JWT) Claims** apontando para a função
+     `public.custom_access_token_hook` (Postgres). Sem isso, a troca obrigatória de senha e o bloqueio
+     do Admin não funcionam.
+   - Migrations: `pnpm exec supabase link --project-ref <ref>` e `pnpm exec supabase db push`
+     (ou aplique os arquivos de `supabase/migrations/` em ordem).
+   - Dados iniciais (frentes, itens, decisões): rode `supabase/seed.sql` no SQL Editor, uma única vez.
+2. **Primeiro admin** — crie `seed/admin.local.json` (fora do git) só com a sua linha, papel `admin` e
+   uma senha inicial forte; preencha `.env.nuvem.local` com a URL, a publishable key e a **secret key**
+   do projeto e rode:
+   ```
+   pnpm seed:usuarios seed/admin.local.json --env .env.nuvem.local
+   ```
+   No primeiro acesso o app pede a troca da senha. As demais contas são criadas em **Admin › Usuários**.
+3. **Vercel** — importe o repositório (framework Next.js detectado sozinho) e cadastre as variáveis
+   de ambiente de **Production**:
+   | Variável | Valor |
+   |---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto (`https://<ref>.supabase.co`) |
+   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | chave publishable |
+   | `SUPABASE_SECRET_KEY` | chave secret (nunca em variável `NEXT_PUBLIC_*`) |
+4. **Depois do primeiro deploy** — em Supabase → **Authentication → URL Configuration**, coloque o
+   endereço da Vercel em **Site URL**.
+5. **Conferir** — entre pelo celular, troque a senha, abra uma frente e um item; com duas sessões
+   abertas, uma atribuição feita numa aparece na outra sem recarregar.
 
-O arquivo `seed/pessoas.local.json` está no `.gitignore` — nunca versione e-mails e senhas reais.
-O script recusa usar o arquivo de exemplo contra um Supabase que não seja local.
+Os arquivos `seed/*.local.json` e `.env*.local` estão no `.gitignore` — nunca versione e-mails e
+senhas reais. O script recusa usar o arquivo de exemplo contra um Supabase que não seja local.
