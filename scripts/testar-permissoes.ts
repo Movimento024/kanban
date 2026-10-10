@@ -121,6 +121,25 @@ async function main() {
   const { count: aExcl } = await admin.from("itens").delete({ count: "exact" }).eq("id", novo!.id);
   verificar("Admin exclui item", aExcl === 1);
 
+  // Perfis
+  const { data: vitor } = await admin.auth.getUser();
+  const { error: eRebaixa } = await admin
+    .from("perfis")
+    .update({ papel: "lider" })
+    .eq("id", vitor.user!.id);
+  verificar("Admin NÃO remove o próprio acesso de admin", !!eRebaixa);
+
+  const debora = await entrar("debora.moura@exemplo.com");
+  const { data: deboraUser } = await debora.auth.getUser();
+  const { error: eDesativa } = await admin
+    .from("perfis")
+    .update({ ativo: false })
+    .eq("id", deboraUser.user!.id);
+  verificar("Admin desativa conta", !eDesativa, eDesativa?.message);
+  const { data: itensDesativada } = await debora.from("itens").select("id");
+  verificar("Conta desativada NÃO vê dados", (itensDesativada ?? []).length === 0);
+  await admin.from("perfis").update({ ativo: true }).eq("id", deboraUser.user!.id);
+
   // Histórico
   const { data: hist } = await admin
     .from("atividades")

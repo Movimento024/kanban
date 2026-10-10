@@ -269,3 +269,10 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - Next.js 16 renomeou `middleware.ts` para **`proxy.ts`** e vem com **Cache Components** ligado: leituras de dados ficam dentro de `<Suspense>` com skeleton (o que já atende "nunca tela branca").
 - Chaves do Supabase no formato novo: `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY`.
 - No histórico, uma edição gera **uma** linha com todos os campos alterados (em vez de uma por campo); reordenações puras não geram histórico.
+
+### Ajustes descobertos na Fase 2
+
+- **Claims no token**: um _custom access token hook_ (migration `..._claims_token.sql`) copia `papel`, `ativo` e `precisa_trocar_senha` de `perfis` para o JWT. O `proxy.ts` usa isso para redirecionar sem consultar o banco a cada clique. A fonte da verdade continua sendo `perfis` (RLS e páginas consultam a tabela). Na nuvem, o hook precisa ser ativado no painel (README).
+- **Desativar conta** = `perfis.ativo = false` + _ban_ no Supabase Auth (impede login e renovação de sessão).
+- **Trocar senha em Minha conta** pede a senha atual (conferida antes da troca).
+- O cliente Supabase do servidor chama `connection()`: dados do usuário nunca são pré-renderizados.

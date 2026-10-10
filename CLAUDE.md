@@ -31,6 +31,8 @@ Especificação completa: `docs/VISAO_PRODUTO.md`. Plano técnico e esquema: `do
 - Permissões garantidas no banco (RLS + triggers). Esconder botão na UI é só conveniência.
 - Schema muda **apenas** por migration nova em `supabase/migrations/` (nunca editar migration já aplicada). Depois de migrar, regenerar tipos: `pnpm db:types`.
 - Mobile first: testar toda tela em largura de celular.
+- Páginas: o componente da página é síncrono e a parte que lê dados fica num componente async dentro de `<Suspense>` com skeleton (ver `admin/usuarios/page.tsx`). Proteção de rota: `exigirPerfil()` / `exigirAdmin()` de `src/server/sessao.ts`.
+- Formulários: `useActionState` + `useErrosCampos` (erros por campo somem ao editar); inputs controlados quando o valor precisa sobreviver a um erro.
 - Next 16: `src/proxy.ts` (não `middleware.ts`) e Cache Components ligado — toda leitura de dados/cookies dentro de `<Suspense>` com skeleton. Consultar `node_modules/next/dist/docs/` antes de usar APIs do Next.
 
 ## Segurança

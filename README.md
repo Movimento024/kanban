@@ -34,6 +34,9 @@ Supabase Studio local: http://127.0.0.1:54323
 
 ### Contas de teste (somente local)
 
+Dica: guarde as variáveis da nuvem em `.env.nuvem.local` (ignorado pelo git) e mantenha `.env.local`
+apontando para o Supabase local durante o desenvolvimento.
+
 O arquivo de exemplo usa e-mails `nome.sobrenome@exemplo.com` e a senha `TROCAR-esta-senha-1`.
 Vitor Santos (`vitor.santos@exemplo.com`) é admin; os demais são líderes.
 No primeiro acesso cada usuário é obrigado a trocar a senha.
@@ -56,12 +59,15 @@ Contas só são criadas por um admin — não há cadastro aberto. Para o primei
 
 1. No projeto Supabase da nuvem, em **Authentication → Sign In / Providers**, desative
    **"Allow new users to sign up"** e mantenha o provedor **Email** ativo.
-2. Aplique as migrations: `pnpm exec supabase link --project-ref <ref>` e `pnpm exec supabase db push`.
+2. Em **Authentication → Hooks**, ative **Customize Access Token (JWT) Claims** apontando para a
+   função `public.custom_access_token_hook` (Postgres). Sem isso, o redirecionamento de troca de senha
+   e de admin não funciona.
+3. Aplique as migrations: `pnpm exec supabase link --project-ref <ref>` e `pnpm exec supabase db push`.
    Para os dados iniciais, rode o conteúdo de `supabase/seed.sql` no SQL Editor (uma única vez).
-3. Crie `seed/pessoas.local.json` contendo **apenas** a linha do Vitor Santos, com o e-mail real,
+4. Crie `seed/pessoas.local.json` contendo **apenas** a linha do Vitor Santos, com o e-mail real,
    `"papel": "admin"` e uma senha inicial forte.
-4. Aponte `.env.local` temporariamente para o projeto da nuvem (URL + secret key) e rode `pnpm seed:usuarios`.
-5. Entre no app com essa senha; o sistema pedirá a troca. A partir daí, as demais contas são criadas em **Admin › Usuários**.
+5. Aponte `.env.local` temporariamente para o projeto da nuvem (URL + secret key) e rode `pnpm seed:usuarios`.
+6. Entre no app com essa senha; o sistema pedirá a troca. A partir daí, as demais contas são criadas em **Admin › Usuários**.
 
 O arquivo `seed/pessoas.local.json` está no `.gitignore` — nunca versione e-mails e senhas reais.
 O script recusa usar o arquivo de exemplo contra um Supabase que não seja local.

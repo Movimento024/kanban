@@ -1,10 +1,14 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "./database.types";
 
 /** Cliente para server components, server actions e route handlers. Usa a sessão do usuário (RLS vale). */
 export async function criarClienteServidor() {
+  // Dados do usuário são sempre por requisição: impede que o Next tente pré-renderizar
+  // (o cliente do Supabase usa Date.now() e isso quebraria o pré-render).
+  await connection();
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
