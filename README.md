@@ -82,6 +82,8 @@ Tudo cabe nos planos gratuitos. Ordem recomendada:
    - **Authentication → Hooks**: ative **Customize Access Token (JWT) Claims** apontando para a função
      `public.custom_access_token_hook` (Postgres). Sem isso, a troca obrigatória de senha e o bloqueio
      do Admin não funcionam.
+   - **Realtime → Settings**: desligue **"Allow public access"** (a presença no item usa canal
+     privado; só usuários logados e ativos entram).
    - Migrations: `pnpm exec supabase link --project-ref <ref>` e `pnpm exec supabase db push`
      (ou aplique os arquivos de `supabase/migrations/` em ordem).
    - Dados iniciais (frentes, itens, decisões): rode `supabase/seed.sql` no SQL Editor, uma única vez.

@@ -329,7 +329,7 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 
 - Tempo real: um canal por sessão escuta `atividades` (INSERT) e `frentes`/`itens` (UPDATE, para reordenações) e atualiza a tela com `router.refresh()` (espera 600 ms para agrupar mudanças). O canal recebe o token do usuário antes de assinar (sem isso entra como anônimo e o RLS filtra tudo).
 - Painel do item: mudanças de outras pessoas recarregam o painel; se eu estiver com "Editar detalhes" aberto e alguém editar o item, aparece o aviso "Este item foi alterado por X agora há pouco" (Recarregar / Continuar editando — última gravação vence).
-- Presença: canal Realtime `item:<id>` (Presence, sem gravar no banco). Risco aceito: canal público; quem tiver o id do item e a chave pública vê nomes de quem está no item.
+- Presença: canal Realtime **privado** `item:<id>` (Presence, sem gravar no banco). RLS em `realtime.messages` (migration 7): só usuários logados e ativos entram e anunciam presença; anônimo é recusado. Em produção, desligar "Allow public access" em Realtime › Settings.
 - `useAbrirItem` lê a query string na hora, para `abrir`/`fechar` terem identidade estável (senão cada atualização da rota recarregava o painel e apagava edições).
 - Aba Atividade: filtros por pessoa (inclui inativas), frente (inclui arquivadas), tipo de ação e período (hoje / 7 / 30 dias, no fuso de SP); 40 por página com "Carregar mais".
 
