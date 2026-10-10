@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { LogOut, Monitor, Moon, Shield, Sun, UserRound } from "lucide-react";
+import { ClipboardList, LogOut, Monitor, Moon, Shield, Sun, UserRound } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +44,11 @@ export function MenuAvatar({ perfil }: { perfil: Perfil }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link href={`/lideres/${perfil.id}`}>
+              <ClipboardList aria-hidden /> Minhas responsabilidades
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/conta">
               <UserRound aria-hidden /> Minha conta

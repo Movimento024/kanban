@@ -46,6 +46,24 @@ const CAMPOS = `
   decisoes ( status, archived_at )
 `;
 
+type Linha = {
+  atribuicoes: { papel: "responsavel" | "apoio"; perfis: PessoaResumo }[];
+  tarefas: { concluida: boolean; archived_at: string | null }[];
+  decisoes: { status: "aberta" | "decidida"; archived_at: string | null }[];
+};
+
+function resumir<L extends Linha>({ atribuicoes, tarefas, decisoes, ...item }: L) {
+  const tarefasAtivas = tarefas.filter((t) => !t.archived_at);
+  return {
+    ...item,
+    responsavel: atribuicoes.find((a) => a.papel === "responsavel")?.perfis ?? null,
+    apoio: atribuicoes.filter((a) => a.papel === "apoio").map((a) => a.perfis),
+    tarefasTotal: tarefasAtivas.length,
+    tarefasConcluidas: tarefasAtivas.filter((t) => t.concluida).length,
+    decisoesAbertas: decisoes.filter((d) => !d.archived_at && d.status === "aberta").length,
+  };
+}
+
 /** Itens ativos de uma frente, com responsável, apoio e contagens. */
 export async function listarItensDaFrente(frenteId: string): Promise<ItemResumo[]> {
   const supabase = await criarClienteServidor();
@@ -57,16 +75,19 @@ export async function listarItensDaFrente(frenteId: string): Promise<ItemResumo[
     .order("ordem")
     .order("created_at");
   if (error) throw new Error(error.message);
+  return data.map(resumir);
+}
 
-  return data.map(({ atribuicoes, tarefas, decisoes, ...item }) => {
-    const tarefasAtivas = tarefas.filter((t) => !t.archived_at);
-    return {
-      ...item,
-      responsavel: atribuicoes.find((a) => a.papel === "responsavel")?.perfis ?? null,
-      apoio: atribuicoes.filter((a) => a.papel === "apoio").map((a) => a.perfis),
-      tarefasTotal: tarefasAtivas.length,
-      tarefasConcluidas: tarefasAtivas.filter((t) => t.concluida).length,
-      decisoesAbertas: decisoes.filter((d) => !d.archived_at && d.status === "aberta").length,
-    };
-  });
+/** Itens ativos de todas as frentes ativas (Visão geral, Por líder). */
+export async function listarItensAtivos(): Promise<ItemResumo[]> {
+  const supabase = await criarClienteServidor();
+  const { data, error } = await supabase
+    .from("itens")
+    .select(`${CAMPOS}, frente:frentes!inner ( archived_at )`)
+    .is("archived_at", null)
+    .is("frente.archived_at", null)
+    .order("ordem")
+    .order("created_at");
+  if (error) throw new Error(error.message);
+  return data.map(resumir);
 }

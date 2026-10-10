@@ -41,7 +41,19 @@ function empilhar(itens: { item: ItemResumo; x: number; largura: number }[]): {
   return { cards, linhas: Math.max(fimDasLinhas.length, 1) };
 }
 
-export function LinhaDoTempo({ frenteId, itens }: { frenteId: string; itens: ItemResumo[] }) {
+/**
+ * `frenteId`: frente que o clique numa raia vazia pré-preenche (na Visão geral
+ * não há uma só frente). `regioes`: raias exibidas (filtro de região).
+ */
+export function LinhaDoTempo({
+  frenteId,
+  itens,
+  regioes = REGIOES_ITEM,
+}: {
+  frenteId?: string;
+  itens: ItemResumo[];
+  regioes?: readonly RegiaoItem[];
+}) {
   const { novoItem } = useItens();
   const rolagem = useRef<HTMLDivElement>(null);
   const dataHoje = useMemo(() => hoje(), []);
@@ -61,7 +73,7 @@ export function LinhaDoTempo({ frenteId, itens }: { frenteId: string; itens: Ite
 
   const raias = useMemo(
     () =>
-      REGIOES_ITEM.map((regiao) => {
+      regioes.map((regiao) => {
         const daRegiao = itens.filter((i) => i.regiao === regiao);
         const semData = daRegiao.filter((i) => !i.data_inicio);
         const { cards, linhas } = empilhar(
@@ -77,7 +89,7 @@ export function LinhaDoTempo({ frenteId, itens }: { frenteId: string; itens: Ite
         const alturaSemData = semData.length * (ALTURA_CARD + ESPACO) + ESPACO + 28;
         return { regiao, semData, cards, altura: Math.max(alturaLinhas, alturaSemData, 120) };
       }),
-    [itens, primeiro],
+    [itens, primeiro, regioes],
   );
 
   // Agrupamentos da régua: ano → semestre → mês.

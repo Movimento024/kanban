@@ -314,3 +314,13 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - Canais: texto livre com sugestões (Instagram, YouTube, Spotify, TikTok, WhatsApp), até 10 por item.
 - A seção de recorrência aparece no formulário em frentes de Cadência ou quando o item já tem recorrência/canais; nas demais, os valores são preservados em campos escondidos.
 - Correção geral: formulários com seletores não usam mais o reset automático do React 19 (`enviarSemResetar`), que voltava os seletores ao valor inicial quando a validação falhava.
+
+### Ajustes descobertos na Fase 7
+
+- **Sobrecarregado** = *mais* itens como responsável do que o limite (padrão 5; admin muda em Por líder › "Limite"). Guardado em `configuracoes.limite_sobrecarga`.
+- **Sem responsável** (contador e pendências) não conta itens cancelados nem realizados.
+- **Próximos 60 dias**: itens cuja data (ou intervalo/mês/período) encosta em [hoje, hoje+60]; cancelados e realizados ficam de fora; itens só recorrentes não entram (estão na aba de Cadência).
+- **Tarefas atrasadas**: prazo antes de hoje e não concluída.
+- Filtro de região da Visão geral: "SP" mostra só itens de SP (Nacional é opção à parte). No Por líder, quem é "SP e Nordeste" aparece nos dois filtros.
+- **Atribuição rápida** (Por líder › Atribuição rápida): arrastar pessoa(s) até um item no computador, ou tocar nas pessoas e depois no item; sempre confirma o papel. Com várias pessoas, só apoio. Virar responsável passa o anterior para apoio.
+- Visão individual: tarefas podem ser concluídas ali mesmo.
