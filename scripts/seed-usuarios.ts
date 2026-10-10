@@ -3,6 +3,8 @@
  *
  *   pnpm seed:usuarios                       → usa seed/pessoas.local.json
  *   pnpm seed:usuarios seed/outro.json       → usa outro arquivo
+ *   pnpm seed:usuarios seed/admin.local.json --env .env.nuvem.local
+ *                                            → cria no Supabase da nuvem
  *
  * É idempotente: quem já tem conta (mesmo e-mail) é pulado.
  * Também serve para criar o primeiro admin em produção: deixe no arquivo só
@@ -16,7 +18,11 @@ import { config } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
-config({ path: ".env.local" });
+const args = process.argv.slice(2);
+const iEnv = args.indexOf("--env");
+const arquivoEnv = iEnv >= 0 ? args[iEnv + 1] : ".env.local";
+if (iEnv >= 0) args.splice(iEnv, 2);
+config({ path: arquivoEnv, quiet: true });
 
 const pessoaSchema = z.object({
   nome: z.string().trim().min(1),
@@ -34,7 +40,8 @@ function iniciais(nome: string) {
 }
 
 async function main() {
-  const arquivo = process.argv[2] ?? "seed/pessoas.local.json";
+  const arquivo = args[0] ?? "seed/pessoas.local.json";
+  console.log(`Usando ${arquivoEnv} → ${process.env.NEXT_PUBLIC_SUPABASE_URL}`);
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const chave = process.env.SUPABASE_SECRET_KEY;
   if (!url || !chave) {

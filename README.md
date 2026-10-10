@@ -41,6 +41,24 @@ O arquivo de exemplo usa e-mails `nome.sobrenome@exemplo.com` e a senha `TROCAR-
 Vitor Santos (`vitor.santos@exemplo.com`) é admin; os demais são líderes.
 No primeiro acesso cada usuário é obrigado a trocar a senha.
 
+## Ambientes e credenciais
+
+|                                        | Desenvolvimento (local)                       | Produção (nuvem)                                                               |
+| -------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
+| Onde fica                              | `.env.local`                                  | `.env.nuvem.local` (na sua máquina) e variáveis da Vercel                      |
+| `NEXT_PUBLIC_SUPABASE_URL`             | `http://127.0.0.1:54321`                      | `https://ifnjvuxyaixrubuvtvmx.supabase.co`                                     |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `pnpm exec supabase status` → PUBLISHABLE_KEY | Supabase → Project Settings → API Keys → Publishable                           |
+| `SUPABASE_SECRET_KEY`                  | `pnpm exec supabase status` → SECRET_KEY      | Supabase → Project Settings → API Keys → Secret (**nunca** no git nem no chat) |
+| Contas                                 | `seed/pessoas.example.json` (senha de teste)  | criadas pelo admin em Admin › Usuários                                         |
+
+As chaves "publishable" são públicas por natureza (o acesso é limitado pelo RLS). A "secret" ignora o RLS: só na sua máquina e nas variáveis da Vercel.
+
+Criar o admin em produção (uma vez): preencha a secret em `.env.nuvem.local` e rode
+
+```bash
+pnpm seed:usuarios seed/admin.local.json --env .env.nuvem.local
+```
+
 ## Comandos
 
 | Comando                                        | O que faz                                                          |

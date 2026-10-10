@@ -42,7 +42,7 @@ yarn-error.log*
 next-env.d.ts
 
 # dados reais de pessoas (e-mails/senhas)
-/seed/pessoas.local.json
+/seed/*.local.json
 
 # supabase local
 /supabase/.temp
