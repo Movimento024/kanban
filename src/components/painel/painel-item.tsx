@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import {
+  AlertTriangle,
   ChevronRight,
   History,
   Link2,
@@ -29,6 +30,7 @@ import {
   BadgeSemResponsavel,
   BadgeStatus,
 } from "@/components/comum/badges";
+import { AvatarPessoa } from "@/components/comum/avatar-pessoa";
 import { IconeFrente } from "@/components/frentes/icone-frente";
 import { AcoesAdminItem } from "@/components/itens/acoes-admin-item";
 import { FormItem } from "@/components/itens/dialog-item";
@@ -37,6 +39,8 @@ import { ArvoreItem } from "@/components/painel/arvore-item";
 import { Painel, type ContextoPainel } from "@/components/painel/contexto-painel";
 import { HistoricoItem } from "@/components/painel/historico-item";
 import { MapaMental } from "@/components/painel/mapa-mental";
+import { EVENTO_ATIVIDADE, type AtividadeTempoReal } from "@/components/tempo-real/sincronizacao";
+import { usePresencaItem, type PessoaPresente } from "@/components/tempo-real/use-presenca";
 import { formatarDataItem, formatarDiaCurto } from "@/lib/datas";
 import { descreverCadencia, distanciaEmDias, proximaOcorrencia } from "@/lib/recorrencia";
 import { corFrente } from "@/lib/frentes";
@@ -66,13 +70,14 @@ function useTelaGrande() {
  */
 export function PainelItem({
   frentes,
-  meuId,
+  eu,
   eAdmin,
 }: {
   frentes: Frente[];
-  meuId: string;
+  eu: PessoaPresente;
   eAdmin: boolean;
 }) {
+  const meuId = eu.id;
   const router = useRouter();
   const { itemAberto, fechar } = useAbrirItem();
   const telaGrande = useTelaGrande();
@@ -96,6 +101,26 @@ export function PainelItem({
     },
     [fechar],
   );
+
+  const presentes = usePresencaItem(itemAberto, eu);
+  // Aviso de conflito: outra pessoa alterou o item enquanto eu editava os detalhes.
+  const [conflito, setConflito] = useState<{ itemId: string; nome: string } | null>(null);
+  const avisoConflito = conflito && conflito.itemId === itemAberto ? conflito : null;
+
+  // Tempo real: mudanças de outras pessoas neste item recarregam o painel. Se eu
+  // estiver editando os detalhes, avisa em vez de recarregar (para não perder a edição).
+  useEffect(() => {
+    function aoMudar(e: Event) {
+      const a = (e as CustomEvent<AtividadeTempoReal>).detail;
+      if (!itemAberto || a.item_id !== itemAberto || a.ator_id === meuId) return;
+      if (a.entidade === "item" && a.acao === "editou" && detalhesAbertos) {
+        const nome = carregado?.pessoas.find((p) => p.id === a.ator_id)?.nome ?? "outra pessoa";
+        setConflito({ itemId: itemAberto, nome });
+      } else void carregar(itemAberto);
+    }
+    window.addEventListener(EVENTO_ATIVIDADE, aoMudar);
+    return () => window.removeEventListener(EVENTO_ATIVIDADE, aoMudar);
+  }, [itemAberto, meuId, detalhesAbertos, carregado, carregar]);
 
   // Abre/troca de item conforme a URL (descarta a resposta se o item mudar no meio).
   useEffect(() => {
@@ -234,8 +259,56 @@ export function PainelItem({
                   </Button>
                 )}
                 <span className="flex-1" />
+                {presentes.length > 0 && (
+                  <span
+                    className="text-muted-foreground flex items-center gap-1.5 text-xs"
+                    aria-label={`Também com este item aberto: ${presentes.map((p) => p.nome).join(", ")}`}
+                  >
+                    <span className="relative flex size-2" aria-hidden>
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-green-500 opacity-60" />
+                      <span className="relative inline-flex size-2 rounded-full bg-green-500" />
+                    </span>
+                    <span className="flex -space-x-1.5">
+                      {presentes.slice(0, 4).map((p) => (
+                        <AvatarPessoa
+                          key={p.id}
+                          nome={`${p.nome} está vendo este item`}
+                          iniciais={p.iniciais}
+                          regiao={p.regiao}
+                          tamanho="sm"
+                          className="ring-popover ring-2"
+                        />
+                      ))}
+                    </span>
+                    {presentes.length > 4 && `+${presentes.length - 4}`}
+                  </span>
+                )}
                 {eAdmin && <AcoesAdminItem item={item} aoRemover={fechar} />}
               </div>
+              {avisoConflito && (
+                <div
+                  role="alert"
+                  className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-500/60 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200"
+                >
+                  <AlertTriangle className="size-4 shrink-0" aria-hidden />
+                  <span className="min-w-0 flex-1">
+                    Este item foi alterado por {avisoConflito.nome} agora há pouco.
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setConflito(null);
+                      void carregar(item.id);
+                    }}
+                  >
+                    Recarregar
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setConflito(null)}>
+                    Continuar editando
+                  </Button>
+                </div>
+              )}
             </SheetHeader>
 
             <div className="grid grid-cols-[minmax(0,1fr)] gap-4 p-4">

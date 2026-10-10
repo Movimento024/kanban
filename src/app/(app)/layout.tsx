@@ -1,11 +1,14 @@
 import { Suspense } from "react";
 import { BarraTopo } from "@/components/layout/barra-topo";
 import { PainelServidor } from "@/components/painel/painel-servidor";
+import { SincronizacaoTempoReal } from "@/components/tempo-real/sincronizacao";
 
 export default function LayoutApp({ children }: LayoutProps<"/">) {
   return (
     <>
       <BarraTopo />
+      {/* Atualiza as telas quando alguém muda algo (Supabase Realtime) */}
+      <SincronizacaoTempoReal />
       <main className="mx-auto flex w-full max-w-7xl min-w-0 flex-1 flex-col px-4 py-6">
         {children}
       </main>
