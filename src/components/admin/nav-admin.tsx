@@ -4,8 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-// Frentes e Arquivados entram nas próximas fases.
-const LINKS = [{ href: "/admin/usuarios", rotulo: "Usuários" }];
+// Arquivados (itens, tarefas, decisões, notas) entra com o painel do item.
+const LINKS = [
+  { href: "/admin/usuarios", rotulo: "Usuários" },
+  { href: "/admin/frentes", rotulo: "Frentes" },
+];
 
 export function NavAdmin() {
   const caminho = usePathname();

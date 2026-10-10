@@ -121,6 +121,44 @@ async function main() {
   const { count: aExcl } = await admin.from("itens").delete({ count: "exact" }).eq("id", novo!.id);
   verificar("Admin exclui item", aExcl === 1);
 
+  // Frentes: reordenar (líder pode), excluir (só admin), mover itens ao excluir
+  const { error: eReord } = await lider.rpc("reordenar_frentes", {
+    p_ids: [
+      "00000000-0000-4000-a000-000000000001",
+      "00000000-0000-4000-a000-000000000002",
+      "00000000-0000-4000-a000-000000000003",
+      "00000000-0000-4000-a000-000000000004",
+    ],
+  });
+  verificar("Líder reordena frentes", !eReord, eReord?.message);
+
+  const { data: temp } = await lider
+    .from("frentes")
+    .insert({ nome: "Temporária", cor: "slate", icone: "star", layout: "lista" })
+    .select()
+    .single();
+  verificar("Líder cria frente", !!temp);
+  await lider
+    .from("itens")
+    .insert({ frente_id: temp!.id, titulo: "Item da temporária", regiao: "SP" });
+
+  const { error: eExclLider } = await lider.rpc("excluir_frente", { p_frente_id: temp!.id });
+  verificar("Líder NÃO exclui frente", !!eExclLider);
+
+  const LOJA = "00000000-0000-4000-a000-000000000004";
+  const { error: eExclAdmin } = await admin.rpc("excluir_frente", {
+    p_frente_id: temp!.id,
+    p_destino: LOJA,
+  });
+  verificar("Admin exclui frente movendo itens", !eExclAdmin, eExclAdmin?.message);
+  const { data: movido } = await admin
+    .from("itens")
+    .select("id, frente_id")
+    .eq("titulo", "Item da temporária")
+    .single();
+  verificar("Item foi movido para a Loja", movido?.frente_id === LOJA);
+  await admin.from("itens").delete().eq("id", movido!.id);
+
   // Perfis
   const { data: vitor } = await admin.auth.getUser();
   const { error: eRebaixa } = await admin

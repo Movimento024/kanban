@@ -577,6 +577,9 @@ export type Database = {
       custom_access_token_hook: { Args: { event: Json }; Returns: Json };
       eh_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       eh_ativo: { Args: Record<PropertyKey, never>; Returns: boolean };
+      excluir_frente: { Args: { p_destino?: string; p_frente_id: string }; Returns: undefined };
+      reordenar_frentes: { Args: { p_ids: string[] }; Returns: undefined };
+      reordenar_itens: { Args: { p_frente_id: string; p_ids: string[] }; Returns: undefined };
     };
     Enums: {
       acao_atividade:

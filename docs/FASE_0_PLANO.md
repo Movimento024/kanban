@@ -276,3 +276,11 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - **Desativar conta** = `perfis.ativo = false` + _ban_ no Supabase Auth (impede login e renovação de sessão).
 - **Trocar senha em Minha conta** pede a senha atual (conferida antes da troca).
 - O cliente Supabase do servidor chama `connection()`: dados do usuário nunca são pré-renderizados.
+
+### Ajustes descobertos na Fase 3
+
+- Operações atômicas em funções do banco (`reordenar_frentes`, `reordenar_itens`, `excluir_frente`), todas `security invoker` (o RLS de quem chama continua valendo).
+- Cor da frente Eventos no seed passou de violeta para fúcsia: violeta é a cor da região Nacional.
+- Abas reordenáveis por arrastar (mouse; no toque, segurar ~0,3 s) e pelo teclado (espaço, setas, espaço). Enter continua abrindo a aba.
+- Frentes de Linha do tempo e Cadência mostram os itens em lista até as Fases 4 e 6.
+- Avisos (toasts) ficam embaixo, para não cobrir as abas.

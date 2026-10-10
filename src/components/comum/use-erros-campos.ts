@@ -7,7 +7,7 @@ import type { Resultado } from "@/server/resultado";
  * Erros por campo vindos da action, que somem quando a pessoa edita o campo.
  * Uso: const [erros, limpar] = useErrosCampos(estado); <form onChange={limpar}>
  */
-export function useErrosCampos(estado: Resultado | null) {
+export function useErrosCampos(estado: Resultado<unknown> | null) {
   const [anterior, setAnterior] = useState(estado);
   const [erros, setErros] = useState<Record<string, string> | undefined>(undefined);
 

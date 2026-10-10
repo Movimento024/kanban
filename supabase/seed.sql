@@ -7,7 +7,7 @@
 -- Frentes
 -- ------------------------------------------------------------
 insert into public.frentes (id, nome, descricao, cor, icone, ordem, layout) values
-  ('00000000-0000-4000-a000-000000000001', 'Eventos', 'Mov Days, viagens, acampamentos e conferências', 'violet', 'calendar-days', 1, 'linha_do_tempo'),
+  ('00000000-0000-4000-a000-000000000001', 'Eventos', 'Mov Days, viagens, acampamentos e conferências', 'fuchsia', 'calendar-days', 1, 'linha_do_tempo'),
   ('00000000-0000-4000-a000-000000000002', 'Ações', 'Ações de evangelização e ações sociais', 'orange', 'hand-heart', 2, 'linha_do_tempo'),
   ('00000000-0000-4000-a000-000000000003', 'Digital', 'Conteúdo recorrente nas redes', 'sky', 'radio', 3, 'cadencia'),
   ('00000000-0000-4000-a000-000000000004', 'Loja', 'Estrutura e operação da loja', 'emerald', 'store', 4, 'lista');
