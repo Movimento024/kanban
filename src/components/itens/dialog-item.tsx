@@ -58,6 +58,7 @@ export type ItemEditavel = Pick<
   | "data_inicio"
   | "data_fim"
   | "data_hora"
+  | "data_hora_fim"
   | "data_periodo"
   | "data_texto"
   | "recorrencia"
@@ -82,6 +83,7 @@ function dataDoItem(item: ItemEditavel): ValorData {
     texto: item.data_texto ?? "",
     dia: item.data_precisao === "exata" ? ini : "",
     hora: item.data_hora?.slice(0, 5) ?? "",
+    horaFim: item.data_hora_fim?.slice(0, 5) ?? "",
     inicio: item.data_precisao === "intervalo" ? ini : "",
     fim: item.data_precisao === "intervalo" ? (item.data_fim ?? "") : "",
     mes: item.data_precisao === "mes" ? ini.slice(0, 7) : "",

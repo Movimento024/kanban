@@ -89,8 +89,14 @@ export type DataItem = {
   data_inicio: string | null;
   data_fim: string | null;
   data_hora?: string | null;
+  data_hora_fim?: string | null;
   data_periodo: PeriodoAno | null;
 };
+
+/** "19:00" a partir de "19:00:00". */
+export function hhmm(hora: string): string {
+  return hora.slice(0, 5);
+}
 
 /** Data formatada conforme a precisão, ex.: "15/11/2026", "Janeiro/2027", "1º semestre de 2027". */
 export function formatarDataItem(item: DataItem): string {
@@ -101,10 +107,16 @@ export function formatarDataItem(item: DataItem): string {
   switch (p) {
     case "exata": {
       const dia = format(inicio, "dd/MM/yyyy");
-      return item.data_hora ? `${dia} · ${item.data_hora.slice(0, 5)}` : dia;
+      if (!item.data_hora) return dia;
+      const fimHora = item.data_hora_fim ? `–${hhmm(item.data_hora_fim)}` : "";
+      return `${dia} · ${hhmm(item.data_hora)}${fimHora}`;
     }
     case "intervalo": {
       const f = paraData(fim ?? ini);
+      if (item.data_hora) {
+        const fimHora = item.data_hora_fim ? ` ${hhmm(item.data_hora_fim)}` : "";
+        return `${format(inicio, "dd/MM/yyyy")} ${hhmm(item.data_hora)} a ${format(f, "dd/MM/yyyy")}${fimHora}`;
+      }
       if (format(inicio, "MM/yyyy") === format(f, "MM/yyyy")) {
         return `${format(inicio, "dd")} a ${format(f, "dd/MM/yyyy")}`;
       }

@@ -71,6 +71,7 @@ pnpm seed:usuarios seed/admin.local.json --env .env.nuvem.local
 | `pnpm seed:usuarios [arquivo]`                 | cria as contas a partir de `seed/pessoas.local.json` (idempotente) |
 | `pnpm test:permissoes`                         | verifica a matriz de permissões direto no banco (local)            |
 | `pnpm test:recorrencia`                        | confere o cálculo da próxima ocorrência (layout Cadência)          |
+| `pnpm test:calendario`                         | confere a conversão entre itens e eventos do calendário            |
 
 ## Publicando em produção (Supabase + Vercel)
 
@@ -96,11 +97,11 @@ Tudo cabe nos planos gratuitos. Ordem recomendada:
    No primeiro acesso o app pede a troca da senha. As demais contas são criadas em **Admin › Usuários**.
 3. **Vercel** — importe o repositório (framework Next.js detectado sozinho) e cadastre as variáveis
    de ambiente de **Production**:
-   | Variável | Valor |
-   |---|---|
-   | `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto (`https://<ref>.supabase.co`) |
-   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | chave publishable |
-   | `SUPABASE_SECRET_KEY` | chave secret (nunca em variável `NEXT_PUBLIC_*`) |
+   | Variável                               | Valor                                            |
+   | -------------------------------------- | ------------------------------------------------ |
+   | `NEXT_PUBLIC_SUPABASE_URL`             | URL do projeto (`https://<ref>.supabase.co`)     |
+   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | chave publishable                                |
+   | `SUPABASE_SECRET_KEY`                  | chave secret (nunca em variável `NEXT_PUBLIC_*`) |
 4. **Depois do primeiro deploy** — em Supabase → **Authentication → URL Configuration**, coloque o
    endereço da Vercel em **Site URL**.
 5. **Conferir** — entre pelo celular, troque a senha, abra uma frente e um item; com duas sessões

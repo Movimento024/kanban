@@ -14,7 +14,8 @@
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",
     "seed:usuarios": "tsx scripts/seed-usuarios.ts",
     "test:permissoes": "tsx scripts/testar-permissoes.ts",
-    "test:recorrencia": "tsx scripts/testar-recorrencia.ts"
+    "test:recorrencia": "tsx scripts/testar-recorrencia.ts",
+    "test:calendario": "tsx scripts/testar-calendario.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
@@ -22,6 +23,12 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@fullcalendar/core": "6.1.21",
+    "@fullcalendar/daygrid": "6.1.21",
+    "@fullcalendar/interaction": "6.1.21",
+    "@fullcalendar/list": "6.1.21",
+    "@fullcalendar/react": "6.1.21",
+    "@fullcalendar/timegrid": "6.1.21",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.3",
     "@xyflow/react": "^12.12.0",

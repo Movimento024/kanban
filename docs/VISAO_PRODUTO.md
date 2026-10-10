@@ -383,6 +383,13 @@ Trabalhe **uma fase por vez**. Ao final de cada fase: rode o projeto, verifique 
 - Deploy na Vercel e instruções no README (variáveis, criação do primeiro admin, como rodar o seed).
 - **Aceite**: app publicado e acessível pelo celular.
 
+### Fase 10 — Calendário na Visão geral
+- A Visão geral ganha as abas **Resumo** (o que já existia) e **Calendário**, estilo Google Agenda: visões Mês, Semana, Dia e Agenda (no celular: Agenda, Dia e Mês).
+- Cada evento é um **item**. Arrastar muda o dia/horário, puxar a borda muda o término, a faixa "Dia todo" vale para itens sem horário, clicar no vazio cria um item ali e clicar no evento abre o painel.
+- O item ganha **horário de término** (`data_hora_fim`); o horário de início passa a valer também para intervalos. Sem horário = dia inteiro.
+- Itens de mês/período/a definir ficam em "Sem dia definido"; arrastar um deles para um dia vira data exata. Recorrentes aparecem em cada ocorrência e só se editam pelo painel.
+- **Aceite**: arrastar um item no calendário muda a data dele em todas as telas e no histórico.
+
 ## 12. Fora do escopo por enquanto
 
 - Cadastro aberto, login social, recuperação de senha por e-mail (admin redefine).

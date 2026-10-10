@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AlarmClock, CircleHelp, Layers, UserX } from "lucide-react";
 import { Segmentado } from "@/components/comum/segmentado";
 import { useFiltroRegiao } from "@/components/filtro-regiao/use-filtro-regiao";
@@ -10,6 +12,7 @@ import { ListaPorMes } from "@/components/frentes/lista-por-mes";
 import { LinhaItem } from "@/components/itens/linha-item";
 import { ListaDecisoes } from "@/components/itens/lista-decisoes";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   COR_STATUS,
   REGIOES_ITEM,
@@ -29,6 +32,34 @@ import {
 import { cn } from "@/lib/utils";
 import type { Frente } from "@/server/consultas/frentes";
 import type { Panorama } from "@/server/consultas/panorama";
+
+// O calendário só carrega quando a aba é aberta (e só no navegador).
+const Calendario = dynamic(
+  () => import("@/components/visao-geral/calendario").then((m) => m.Calendario),
+  { ssr: false, loading: () => <Skeleton className="h-[70vh] rounded-xl" /> },
+);
+
+type Aba = "resumo" | "calendario";
+const ABAS: { valor: Aba; rotulo: string }[] = [
+  { valor: "resumo", rotulo: "Resumo" },
+  { valor: "calendario", rotulo: "Calendário" },
+];
+
+/** A aba fica na URL (?aba=calendario) para o link abrir direto nela. */
+function useAba(): [Aba, (a: Aba) => void] {
+  const router = useRouter();
+  const caminho = usePathname();
+  const params = useSearchParams();
+  const aba: Aba = params.get("aba") === "calendario" ? "calendario" : "resumo";
+  const mudar = (a: Aba) => {
+    const p = new URLSearchParams(window.location.search);
+    if (a === "resumo") p.delete("aba");
+    else p.set("aba", a);
+    const qs = p.toString();
+    router.replace(qs ? `${caminho}?${qs}` : caminho, { scroll: false });
+  };
+  return [aba, mudar];
+}
 
 const DIAS_PROXIMOS = 60;
 const LIMITE_LISTA = 6;
@@ -116,6 +147,38 @@ function Vazio({ children }: { children: React.ReactNode }) {
   );
 }
 
+function calcularDados(
+  panorama: Panorama,
+  frentes: Frente[],
+  regiao: FiltroRegiaoItem,
+  base: Date,
+) {
+  const itens = panorama.itens.filter((i) => regiao === "todos" || i.regiao === regiao);
+  const ids = new Set(itens.map((i) => i.id));
+  const porId = new Map(itens.map((i) => [i.id, i]));
+  const decisoes = panorama.decisoesAbertas.filter((d) => ids.has(d.item_id));
+  const atrasadas = panorama.tarefas.filter((t) => ids.has(t.item_id) && tarefaAtrasada(t, base));
+  const semDono = itens.filter(semResponsavel).sort(porData(base));
+  const linhaDoTempo = new Set(
+    frentes.filter((f) => f.layout === "linha_do_tempo").map((f) => f.id),
+  );
+  return {
+    itens,
+    porId,
+    decisoes,
+    atrasadas,
+    semDono,
+    proximos: itensNosProximosDias(itens, DIAS_PROXIMOS, base),
+    porStatus: STATUS.map((s) => ({
+      status: s,
+      total: itens.filter((i) => i.status === s).length,
+    })),
+    consolidados: itens.filter((i) => linhaDoTempo.has(i.frente_id)),
+  };
+}
+
+type DadosResumo = ReturnType<typeof calcularDados>;
+
 export function VisaoGeral({
   panorama,
   frentes,
@@ -127,34 +190,15 @@ export function VisaoGeral({
 }) {
   // Filtro de região global (o mesmo da barra superior).
   const [regiao, mudarRegiao] = useFiltroRegiao();
+  const [aba, mudarAba] = useAba();
   const base = useMemo(() => hoje(), []);
 
   const frentesPorId = useMemo(() => new Map(frentes.map((f) => [f.id, f])), [frentes]);
 
-  const dados = useMemo(() => {
-    const itens = panorama.itens.filter((i) => regiao === "todos" || i.regiao === regiao);
-    const ids = new Set(itens.map((i) => i.id));
-    const porId = new Map(itens.map((i) => [i.id, i]));
-    const decisoes = panorama.decisoesAbertas.filter((d) => ids.has(d.item_id));
-    const atrasadas = panorama.tarefas.filter((t) => ids.has(t.item_id) && tarefaAtrasada(t, base));
-    const semDono = itens.filter(semResponsavel).sort(porData(base));
-    const linhaDoTempo = new Set(
-      frentes.filter((f) => f.layout === "linha_do_tempo").map((f) => f.id),
-    );
-    return {
-      itens,
-      porId,
-      decisoes,
-      atrasadas,
-      semDono,
-      proximos: itensNosProximosDias(itens, DIAS_PROXIMOS, base),
-      porStatus: STATUS.map((s) => ({
-        status: s,
-        total: itens.filter((i) => i.status === s).length,
-      })),
-      consolidados: itens.filter((i) => linhaDoTempo.has(i.frente_id)),
-    };
-  }, [panorama, regiao, base, frentes]);
+  const dados = useMemo(
+    () => calcularDados(panorama, frentes, regiao, base),
+    [panorama, regiao, base, frentes],
+  );
 
   const regioesLinha: readonly RegiaoItem[] = regiao === "todos" ? REGIOES_ITEM : [regiao];
 
@@ -168,6 +212,30 @@ export function VisaoGeral({
         <Segmentado rotulo="Região" opcoes={FILTROS} valor={regiao} aoMudar={mudarRegiao} />
       </div>
 
+      <div className="-mt-4 flex">
+        <Segmentado rotulo="Visualização" opcoes={ABAS} valor={aba} aoMudar={mudarAba} />
+      </div>
+
+      {aba === "calendario" ? (
+        <Calendario itens={dados.itens} frentes={frentes} regiao={regiao} />
+      ) : (
+        <Resumo dados={dados} frentesPorId={frentesPorId} regioesLinha={regioesLinha} />
+      )}
+    </div>
+  );
+}
+
+function Resumo({
+  dados,
+  frentesPorId,
+  regioesLinha,
+}: {
+  dados: DadosResumo;
+  frentesPorId: Map<string, Frente>;
+  regioesLinha: readonly RegiaoItem[];
+}) {
+  return (
+    <>
       {/* Contadores */}
       <section aria-label="Contadores" className="grid gap-3">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -286,6 +354,6 @@ export function VisaoGeral({
           </>
         )}
       </Bloco>
-    </div>
+    </>
   );
 }

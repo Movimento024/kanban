@@ -15,6 +15,7 @@ export type ItemResumo = Pick<
   | "titulo"
   | "descricao"
   | "data_hora"
+  | "data_hora_fim"
   | "status"
   | "regiao"
   | "local"
@@ -38,7 +39,7 @@ export type ItemResumo = Pick<
 };
 
 const CAMPOS = `
-  id, frente_id, titulo, descricao, status, regiao, local, ordem, data_hora,
+  id, frente_id, titulo, descricao, status, regiao, local, ordem, data_hora, data_hora_fim,
   data_precisao, data_inicio, data_fim, data_periodo, data_texto,
   recorrencia, recorrencia_dia_semana, recorrencia_estreia, recorrencia_texto, canais,
   atribuicoes ( papel, perfis!atribuicoes_pessoa_id_fkey ( id, nome, iniciais, regiao, ativo ) ),

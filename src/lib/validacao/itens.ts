@@ -13,6 +13,7 @@ const textoOpcional = (max: number, msg: string) =>
 
 const dataIso = /^\d{4}-\d{2}-\d{2}$/;
 const mesIso = /^\d{4}-\d{2}$/;
+const horaIso = /^\d{2}:\d{2}$/;
 
 /**
  * Campos do formulário de item. A data vem em campos separados por precisão
@@ -34,6 +35,7 @@ export const itemSchema = z
     data_precisao: z.enum(PRECISOES, { error: "Escolha a precisão da data." }),
     data_dia: z.string().optional(),
     data_hora: z.string().optional(),
+    data_hora_fim: z.string().optional(),
     data_inicio: z.string().optional(),
     data_fim: z.string().optional(),
     data_mes: z.string().optional(),
@@ -70,10 +72,19 @@ export const itemSchema = z
   .superRefine((d, ctx) => {
     const erro = (path: string, message: string) =>
       ctx.addIssue({ code: "custom", path: [path], message });
+    // Horário de término só com início; no mesmo dia, depois do início.
+    const validarHorario = (mesmoDia: boolean) => {
+      if (d.data_hora && !horaIso.test(d.data_hora)) erro("data_hora", "Hora inválida.");
+      if (!d.data_hora_fim) return;
+      if (!horaIso.test(d.data_hora_fim)) erro("data_hora_fim", "Hora inválida.");
+      else if (!d.data_hora) erro("data_hora", "Informe a hora de início.");
+      else if (mesmoDia && d.data_hora_fim <= d.data_hora)
+        erro("data_hora_fim", "O término precisa ser depois do início.");
+    };
     switch (d.data_precisao) {
       case "exata":
         if (!d.data_dia || !dataIso.test(d.data_dia)) erro("data_dia", "Informe o dia.");
-        if (d.data_hora && !/^\d{2}:\d{2}$/.test(d.data_hora)) erro("data_hora", "Hora inválida.");
+        validarHorario(true);
         break;
       case "intervalo":
         if (!d.data_inicio || !dataIso.test(d.data_inicio))
@@ -81,6 +92,7 @@ export const itemSchema = z
         if (!d.data_fim || !dataIso.test(d.data_fim)) erro("data_fim", "Informe o fim.");
         else if (d.data_inicio && d.data_fim < d.data_inicio)
           erro("data_fim", "O fim precisa ser depois do início.");
+        validarHorario(d.data_inicio === d.data_fim);
         break;
       case "mes":
         if (!d.data_mes || !mesIso.test(d.data_mes)) erro("data_mes", "Informe o mês.");
@@ -117,6 +129,11 @@ export const itemSchema = z
 
 export type ItemForm = z.infer<typeof itemSchema>;
 
+function horario(d: ItemForm) {
+  const hora = d.data_hora || null;
+  return { data_hora: hora, data_hora_fim: hora ? d.data_hora_fim || null : null };
+}
+
 /** Converte os campos do formulário nas colunas de data do banco (o banco normaliza o resto). */
 export function itemParaBanco(d: ItemForm) {
   const base = {
@@ -136,6 +153,7 @@ export function itemParaBanco(d: ItemForm) {
     data_inicio: null as string | null,
     data_fim: null as string | null,
     data_hora: null as string | null,
+    data_hora_fim: null as string | null,
     data_periodo: null as (typeof PERIODOS)[number] | null,
   };
   switch (d.data_precisao) {
@@ -144,10 +162,10 @@ export function itemParaBanco(d: ItemForm) {
         ...base,
         data_inicio: d.data_dia!,
         data_fim: d.data_dia!,
-        data_hora: d.data_hora || null,
+        ...horario(d),
       };
     case "intervalo":
-      return { ...base, data_inicio: d.data_inicio!, data_fim: d.data_fim! };
+      return { ...base, data_inicio: d.data_inicio!, data_fim: d.data_fim!, ...horario(d) };
     case "mes":
       return { ...base, data_inicio: `${d.data_mes}-01`, data_fim: `${d.data_mes}-01` };
     case "periodo":
@@ -161,3 +179,24 @@ export function itemParaBanco(d: ItemForm) {
       return base;
   }
 }
+
+/**
+ * Nova data de um item arrastado ou redimensionado no calendário. Sem hora =
+ * dia inteiro; o mesmo dia vira data exata, dias diferentes viram intervalo.
+ */
+export const moverItemSchema = z
+  .object({
+    id: z.guid({ error: "Item inválido." }),
+    inicio: z.string().regex(dataIso, "Data inválida."),
+    fim: z.string().regex(dataIso, "Data inválida."),
+    hora: z.string().regex(horaIso, "Hora inválida.").nullable(),
+    horaFim: z.string().regex(horaIso, "Hora inválida.").nullable(),
+  })
+  .refine((d) => d.fim >= d.inicio, "O fim precisa ser depois do início.")
+  .refine((d) => !d.horaFim || d.hora, "Informe a hora de início.")
+  .refine(
+    (d) => !d.horaFim || !d.hora || d.inicio !== d.fim || d.horaFim > d.hora,
+    "O término precisa ser depois do início.",
+  );
+
+export type MoverItem = z.infer<typeof moverItemSchema>;

@@ -28,7 +28,14 @@ type Obj = Record<string, unknown>;
 const obj = (j: Json | null): Obj =>
   j && typeof j === "object" && !Array.isArray(j) ? (j as Obj) : {};
 const aspas = (s: unknown) => (s ? `“${s}”` : "");
-const CAMPOS_DATA = ["data_precisao", "data_inicio", "data_fim", "data_hora", "data_periodo"];
+const CAMPOS_DATA = [
+  "data_precisao",
+  "data_inicio",
+  "data_fim",
+  "data_hora",
+  "data_hora_fim",
+  "data_periodo",
+];
 
 /**
  * @param itemAtual estado atual do item (se disponível) para completar a data
@@ -199,6 +206,7 @@ function dataDe(v: Obj): string | null {
     data_inicio: (v.data_inicio as string) ?? null,
     data_fim: (v.data_fim as string) ?? null,
     data_hora: (v.data_hora as string) ?? null,
+    data_hora_fim: (v.data_hora_fim as string) ?? null,
     data_periodo: (v.data_periodo as DataItem["data_periodo"]) ?? null,
   });
 }

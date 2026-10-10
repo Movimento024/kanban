@@ -2,10 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { camposDaNovaData } from "@/lib/calendario";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { errosDeCampo, traduzirErro } from "@/lib/erros";
 import { idsSchema } from "@/lib/validacao/frentes";
-import { itemParaBanco, itemSchema } from "@/lib/validacao/itens";
+import { itemParaBanco, itemSchema, moverItemSchema, type MoverItem } from "@/lib/validacao/itens";
 import { dadosDoForm } from "@/lib/validacao/usuarios";
 import { falha, sucesso, type Resultado } from "@/server/resultado";
 import { obterPerfilAtual } from "@/server/sessao";
@@ -65,6 +66,25 @@ export async function editarItem(
 
   revalidarItens();
   return sucesso({ id: id.data }, "Item atualizado.");
+}
+
+/** Muda só a data/horário de um item (arrastar ou redimensionar no calendário). */
+export async function moverItem(dados: MoverItem): Promise<Resultado> {
+  if (!(await obterPerfilAtual())) return falha(SESSAO_EXPIRADA);
+  const parsed = moverItemSchema.safeParse(dados);
+  if (!parsed.success) return falha(parsed.error.issues[0]?.message ?? "Data inválida.");
+
+  const supabase = await criarClienteServidor();
+  const { error, count } = await supabase
+    .from("itens")
+    .update(camposDaNovaData(parsed.data), { count: "exact" })
+    .eq("id", parsed.data.id)
+    .is("archived_at", null);
+  if (error) return falha(traduzirErro(error));
+  if (!count) return falha("Item não encontrado. Talvez tenha sido arquivado.");
+
+  revalidarItens();
+  return sucesso(undefined);
 }
 
 export async function arquivarItem(id: string, arquivar: boolean): Promise<Resultado> {
