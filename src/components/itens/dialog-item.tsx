@@ -23,8 +23,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Campo } from "@/components/comum/campo";
 import { MensagemErro } from "@/components/comum/mensagem-erro";
-import { useErrosCampos } from "@/components/comum/use-erros-campos";
+import { enviarSemResetar, useErrosCampos } from "@/components/comum/use-erros-campos";
 import { DATA_VAZIA, SeletorData, type ValorData } from "@/components/itens/seletor-data";
+import {
+  RECORRENCIA_VAZIA,
+  RecorrenciaOculta,
+  SeletorRecorrencia,
+  type ValorRecorrencia,
+} from "@/components/itens/seletor-recorrencia";
 import {
   REGIOES_ITEM,
   ROTULO_REGIAO_ITEM,
@@ -54,6 +60,11 @@ export type ItemEditavel = Pick<
   | "data_hora"
   | "data_periodo"
   | "data_texto"
+  | "recorrencia"
+  | "recorrencia_dia_semana"
+  | "recorrencia_estreia"
+  | "recorrencia_texto"
+  | "canais"
 >;
 
 /** Valores iniciais para um item novo (ex.: clique numa raia da linha do tempo). */
@@ -76,6 +87,16 @@ function dataDoItem(item: ItemEditavel): ValorData {
     mes: item.data_precisao === "mes" ? ini.slice(0, 7) : "",
     ano: item.data_precisao === "periodo" ? ini.slice(0, 4) : "",
     periodo: item.data_periodo ?? "",
+  };
+}
+
+function recorrenciaDoItem(item: ItemEditavel): ValorRecorrencia {
+  return {
+    recorrencia: item.recorrencia,
+    dia: item.recorrencia_dia_semana?.toString() ?? "",
+    estreia: item.recorrencia_estreia ?? "",
+    texto: item.recorrencia_texto ?? "",
+    canais: item.canais,
   };
 }
 
@@ -113,7 +134,17 @@ export function FormItem({
   const [data, setData] = useState<ValorData>(
     item ? dataDoItem(item) : { ...DATA_VAZIA, ...padrao?.data },
   );
+  const [recorrencia, setRecorrencia] = useState<ValorRecorrencia>(
+    item ? recorrenciaDoItem(item) : RECORRENCIA_VAZIA,
+  );
   const tratado = useRef<typeof estado>(null);
+
+  // Recorrência aparece em frentes de Cadência ou quando o item já tem uma.
+  const layoutFrente = frentes.find((f) => f.id === frenteId)?.layout;
+  const mostraRecorrencia =
+    layoutFrente === "cadencia" ||
+    recorrencia.recorrencia !== "nenhuma" ||
+    recorrencia.canais.length > 0;
 
   useEffect(() => {
     if (estado?.ok && tratado.current !== estado) {
@@ -127,7 +158,7 @@ export function FormItem({
   const ocupado = pendente;
 
   return (
-    <form action={acao} onChange={limparErro} className="grid gap-4" noValidate>
+    <form onSubmit={enviarSemResetar(acao)} onChange={limparErro} className="grid gap-4" noValidate>
       {estado && !estado.ok && !estado.campos && <MensagemErro>{estado.erro}</MensagemErro>}
       {item && <input type="hidden" name="id" value={item.id} />}
 
@@ -212,6 +243,12 @@ export function FormItem({
       />
 
       <SeletorData valor={data} aoMudar={setData} erros={erros} />
+
+      {mostraRecorrencia ? (
+        <SeletorRecorrencia valor={recorrencia} aoMudar={setRecorrencia} erros={erros} />
+      ) : (
+        <RecorrenciaOculta valor={recorrencia} />
+      )}
 
       <div className="grid gap-1.5">
         <Label htmlFor="item-descricao">

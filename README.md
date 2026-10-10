@@ -70,6 +70,7 @@ pnpm seed:usuarios seed/admin.local.json --env .env.nuvem.local
 | `pnpm db:types`                                | regenera `src/lib/supabase/database.types.ts`                      |
 | `pnpm seed:usuarios [arquivo]`                 | cria as contas a partir de `seed/pessoas.local.json` (idempotente) |
 | `pnpm test:permissoes`                         | verifica a matriz de permissões direto no banco (local)            |
+| `pnpm test:recorrencia`                        | confere o cálculo da próxima ocorrência (layout Cadência)          |
 
 ## Criando o primeiro admin (produção)
 

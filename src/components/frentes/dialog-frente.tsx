@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Campo } from "@/components/comum/campo";
 import { MensagemErro } from "@/components/comum/mensagem-erro";
-import { useErrosCampos } from "@/components/comum/use-erros-campos";
+import { enviarSemResetar, useErrosCampos } from "@/components/comum/use-erros-campos";
 import { IconeFrente } from "@/components/frentes/icone-frente";
 import { DESCRICAO_LAYOUT, LAYOUTS, ROTULO_LAYOUT, type LayoutFrente } from "@/lib/constantes";
 import { CORES_FRENTE, ICONES_FRENTE, LISTA_CORES, corFrente } from "@/lib/frentes";
@@ -102,7 +102,7 @@ function FormFrente({
   }, [estado, aoFechar, aoSalvar]);
 
   return (
-    <form action={acao} onChange={limparErro} className="grid gap-5" noValidate>
+    <form onSubmit={enviarSemResetar(acao)} onChange={limparErro} className="grid gap-5" noValidate>
       {estado && !estado.ok && !estado.campos && <MensagemErro>{estado.erro}</MensagemErro>}
       {frente && <input type="hidden" name="id" value={frente.id} />}
 

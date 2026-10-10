@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { REGIOES_ITEM, STATUS } from "@/lib/constantes";
-import { PERIODOS, PRECISOES } from "@/lib/datas";
+import { PERIODOS, PRECISOES, paraData } from "@/lib/datas";
+import { DIAS_SEMANA, RECORRENCIAS, diaSemanaParaBanco } from "@/lib/recorrencia";
 
 const textoOpcional = (max: number, msg: string) =>
   z
@@ -39,6 +40,32 @@ export const itemSchema = z
     data_ano: z.string().optional(),
     data_periodo: z.string().optional(),
     data_texto: textoOpcional(120, "Texto muito longo (máx. 120)."),
+    recorrencia: z.enum(RECORRENCIAS).default("nenhuma"),
+    recorrencia_dia_semana: z
+      .string()
+      .optional()
+      .transform((v) => (v ? Number(v) : null))
+      .pipe(z.number().int().min(0).max(6).nullable()),
+    recorrencia_estreia: z
+      .string()
+      .optional()
+      .transform((v) => v || null),
+    recorrencia_texto: textoOpcional(80, "Texto muito longo (máx. 80)."),
+    // Canais separados por vírgula: "Instagram,YouTube".
+    canais: z
+      .string()
+      .optional()
+      .transform((v) =>
+        [
+          ...new Set(
+            (v ?? "")
+              .split(",")
+              .map((c) => c.trim())
+              .filter(Boolean),
+          ),
+        ].slice(0, 10),
+      )
+      .pipe(z.array(z.string().max(30, "Nome de canal muito longo (máx. 30)."))),
   })
   .superRefine((d, ctx) => {
     const erro = (path: string, message: string) =>
@@ -64,6 +91,28 @@ export const itemSchema = z
           erro("data_periodo", "Escolha o período.");
         break;
     }
+
+    const estreia = d.recorrencia_estreia;
+    if (estreia && !dataIso.test(estreia)) erro("recorrencia_estreia", "Data de estreia inválida.");
+    switch (d.recorrencia) {
+      case "semanal":
+        if (d.recorrencia_dia_semana == null)
+          erro("recorrencia_dia_semana", "Escolha o dia da semana.");
+        else if (estreia && dataIso.test(estreia)) {
+          const dia = paraData(estreia).getDay();
+          if (dia !== d.recorrencia_dia_semana)
+            erro(
+              "recorrencia_estreia",
+              `A estreia precisa cair no dia escolhido (${DIAS_SEMANA[d.recorrencia_dia_semana]}).`,
+            );
+        }
+        break;
+      case "quinzenal":
+      case "mensal":
+        if (!estreia)
+          erro("recorrencia_estreia", "Informe a data de estreia (é dela que a conta parte).");
+        break;
+    }
   });
 
 export type ItemForm = z.infer<typeof itemSchema>;
@@ -79,6 +128,11 @@ export function itemParaBanco(d: ItemForm) {
     status: d.status,
     data_precisao: d.data_precisao,
     data_texto: d.data_texto,
+    recorrencia: d.recorrencia,
+    recorrencia_dia_semana: diaSemanaParaBanco(d),
+    recorrencia_estreia: d.recorrencia === "nenhuma" ? null : d.recorrencia_estreia,
+    recorrencia_texto: d.recorrencia_texto,
+    canais: d.canais,
     data_inicio: null as string | null,
     data_fim: null as string | null,
     data_hora: null as string | null,

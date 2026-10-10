@@ -302,3 +302,15 @@ Decisões que tomei sem perguntar (me corrija se discordar): pnpm como gerenciad
 - Validação de IDs com `z.guid()` (aceita qualquer UUID do Postgres; `z.uuid()` do Zod 4 recusava os IDs fixos do seed).
 - React Flow 12: nós precisam de `width/height` explícitos (senão ficam invisíveis até medir) e de um `onNodeClick` (senão os botões dentro deles não recebem clique).
 - Admin › Arquivados: itens, tarefas, decisões, opções e notas arquivados, com Restaurar e Excluir.
+
+### Ajustes descobertos na Fase 6
+
+- **Regras de recorrência** (a visão não detalha; decisão para revisar):
+  - *semanal*: todo dia da semana escolhido, a partir da estreia (opcional; se houver, precisa cair nesse dia);
+  - *quinzenal*: a cada 14 dias contados da estreia (obrigatória); o dia da semana é o da estreia;
+  - *mensal*: todo mês no dia do mês da estreia (obrigatória); em meses mais curtos, no último dia.
+- Item **cancelado** não mostra próxima ocorrência nem aparece na Semana.
+- "Observação da cadência" (`recorrencia_texto`) guarda expressões como "a definir" e "conforme eventos"; sem recorrência, o card mostra "Cadência a definir".
+- Canais: texto livre com sugestões (Instagram, YouTube, Spotify, TikTok, WhatsApp), até 10 por item.
+- A seção de recorrência aparece no formulário em frentes de Cadência ou quando o item já tem recorrência/canais; nas demais, os valores são preservados em campos escondidos.
+- Correção geral: formulários com seletores não usam mais o reset automático do React 19 (`enviarSemResetar`), que voltava os seletores ao valor inicial quando a validação falhava.

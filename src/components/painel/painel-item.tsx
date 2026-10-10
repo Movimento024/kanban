@@ -2,7 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight, History, Link2, Maximize2, Minimize2, Pencil, UserPlus } from "lucide-react";
+import {
+  ChevronRight,
+  History,
+  Link2,
+  Maximize2,
+  Minimize2,
+  Pencil,
+  Repeat,
+  UserPlus,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -28,7 +37,8 @@ import { ArvoreItem } from "@/components/painel/arvore-item";
 import { Painel, type ContextoPainel } from "@/components/painel/contexto-painel";
 import { HistoricoItem } from "@/components/painel/historico-item";
 import { MapaMental } from "@/components/painel/mapa-mental";
-import { formatarDataItem } from "@/lib/datas";
+import { formatarDataItem, formatarDiaCurto } from "@/lib/datas";
+import { descreverCadencia, distanciaEmDias, proximaOcorrencia } from "@/lib/recorrencia";
 import { corFrente } from "@/lib/frentes";
 import { cn } from "@/lib/utils";
 import { carregarDetalheItem, meAtribuir } from "@/server/actions/ramos";
@@ -147,6 +157,8 @@ export function PainelItem({
   const souDoItem = detalhe?.atribuicoes.some((a) => a.pessoa.id === meuId);
   const semResponsavel = detalhe && !detalhe.atribuicoes.some((a) => a.papel === "responsavel");
   const decisoesAbertas = detalhe?.decisoes.filter((d) => d.status === "aberta").length ?? 0;
+  const cadencia = item ? descreverCadencia(item) : null;
+  const proxima = item && item.status !== "cancelado" ? proximaOcorrencia(item) : null;
 
   return (
     <Sheet open={!!itemAberto} onOpenChange={(o) => !o && fechar()}>
@@ -192,6 +204,17 @@ export function PainelItem({
                   {item.data_texto && ` (${item.data_texto})`}
                   {item.local && ` · ${item.local}`}
                 </span>
+                {cadencia && (
+                  <span className="flex items-center gap-1 text-xs">
+                    <Repeat className="size-3" aria-hidden />
+                    <span>{cadencia.charAt(0).toUpperCase() + cadencia.slice(1)}</span>
+                    {proxima &&
+                      ` · próxima ${formatarDiaCurto(proxima)} (${distanciaEmDias(proxima)})`}
+                  </span>
+                )}
+                {item.canais.length > 0 && (
+                  <span className="text-xs">{item.canais.join(" · ")}</span>
+                )}
                 {semResponsavel && <BadgeSemResponsavel />}
                 <BadgeDecisoes total={decisoesAbertas} />
               </SheetDescription>
@@ -229,7 +252,7 @@ export function PainelItem({
                   <Pencil className="text-muted-foreground size-4" aria-hidden />
                   Editar detalhes do item
                   <span className="text-muted-foreground ml-auto hidden truncate text-xs font-normal sm:block">
-                    título, frente, região, local, status, data e descrição
+                    título, frente, região, local, status, data, recorrência e descrição
                   </span>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="border-t p-3">

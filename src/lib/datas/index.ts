@@ -170,3 +170,15 @@ export function anosDoPlanejamento(): number[] {
   const atual = hoje().getFullYear();
   return [atual, atual + 1, atual + 2, atual + 3];
 }
+
+/** "ter, 13/10" (ano só quando não é o atual). */
+export function formatarDiaCurto(data: Date): string {
+  const semana = format(data, "EEE", { locale: ptBR }).replace(".", "");
+  const ano = data.getFullYear() === hoje().getFullYear() ? "" : `/${data.getFullYear()}`;
+  return `${semana}, ${format(data, "dd/MM")}${ano}`;
+}
+
+/** "06/10/2026" a partir de "aaaa-mm-dd". */
+export function formatarDiaIso(iso: string): string {
+  return format(paraData(iso), "dd/MM/yyyy");
+}
