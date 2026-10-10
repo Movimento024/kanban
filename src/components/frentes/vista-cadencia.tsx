@@ -7,10 +7,12 @@ import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EstadoVazio } from "@/components/comum/estado-vazio";
+import { filtrarPorRegiao, useFiltroRegiao } from "@/components/filtro-regiao/use-filtro-regiao";
+import { AvisoFiltroRegiao } from "@/components/filtro-regiao/seletor-regiao";
 import { CardCadencia, proximaDoItem } from "@/components/frentes/card-cadencia";
 import { BotaoNovoItem } from "@/components/itens/botao-novo-item";
 import { useItens } from "@/components/itens/provedor-itens";
-import { COR_STATUS } from "@/lib/constantes";
+import { COR_STATUS, ROTULO_REGIAO_ITEM } from "@/lib/constantes";
 import { hoje } from "@/lib/datas";
 import { DIAS_SEMANA, ocorrenciasEntre } from "@/lib/recorrencia";
 import { cn } from "@/lib/utils";
@@ -20,7 +22,9 @@ import type { ItemResumo } from "@/server/consultas/itens";
 type Vista = "cards" | "semana";
 
 /** Layout Cadência: grade de cards ou a faixa da Semana (segunda a domingo). */
-export function VistaCadencia({ frente, itens }: { frente: Frente; itens: ItemResumo[] }) {
+export function VistaCadencia({ frente, itens: todos }: { frente: Frente; itens: ItemResumo[] }) {
+  const [filtro] = useFiltroRegiao();
+  const itens = useMemo(() => filtrarPorRegiao(todos, filtro), [todos, filtro]);
   const caminho = usePathname();
   const params = useSearchParams();
   const vista: Vista = params.get("vista") === "semana" ? "semana" : "cards";
@@ -79,12 +83,17 @@ export function VistaCadencia({ frente, itens }: { frente: Frente; itens: ItemRe
         </p>
       </div>
 
+      <AvisoFiltroRegiao ocultos={todos.length - itens.length} />
       {itens.length === 0 ? (
         <EstadoVazio
-          titulo={`Nenhum conteúdo em ${frente.nome} ainda`}
+          titulo={
+            filtro === "todos"
+              ? `Nenhum conteúdo em ${frente.nome} ainda`
+              : `Nenhum conteúdo de ${frente.nome} em ${ROTULO_REGIAO_ITEM[filtro]} ainda`
+          }
           descricao="Crie o primeiro e defina a recorrência (ex.: toda terça) para ver a próxima data."
         >
-          <BotaoNovoItem frenteId={frente.id} />
+          <BotaoNovoItem frenteId={frente.id} regiao={filtro === "todos" ? undefined : filtro} />
         </EstadoVazio>
       ) : vista === "cards" ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

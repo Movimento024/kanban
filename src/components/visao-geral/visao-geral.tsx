@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { AlarmClock, CircleHelp, Layers, UserX } from "lucide-react";
 import { Segmentado } from "@/components/comum/segmentado";
+import { useFiltroRegiao } from "@/components/filtro-regiao/use-filtro-regiao";
 import { LinhaDoTempo } from "@/components/frentes/linha-do-tempo";
 import { ListaPorMes } from "@/components/frentes/lista-por-mes";
 import { LinhaItem } from "@/components/itens/linha-item";
@@ -125,20 +125,9 @@ export function VisaoGeral({
   frentes: Frente[];
   primeiroNome: string;
 }) {
-  const caminho = usePathname();
-  const params = useSearchParams();
-  const pedida = params.get("regiao");
-  const regiao = FILTROS.find((f) => f.valor === pedida)?.valor ?? "todos";
+  // Filtro de região global (o mesmo da barra superior).
+  const [regiao, mudarRegiao] = useFiltroRegiao();
   const base = useMemo(() => hoje(), []);
-
-  const mudarRegiao = (r: FiltroRegiaoItem) => {
-    const p = new URLSearchParams(params);
-    if (r === "todos") p.delete("regiao");
-    else p.set("regiao", r);
-    const qs = p.toString();
-    // replaceState: filtro é só da tela, sem nova entrada no histórico nem ida ao servidor.
-    window.history.replaceState(null, "", qs ? `${caminho}?${qs}` : caminho);
-  };
 
   const frentesPorId = useMemo(() => new Map(frentes.map((f) => [f.id, f])), [frentes]);
 

@@ -16,7 +16,11 @@ export default function LayoutApp({ children }: LayoutProps<"/">) {
       <BarraTopo />
       {/* Atualiza as telas quando alguém muda algo (Supabase Realtime) */}
       <SincronizacaoTempoReal />
-      <main id="conteudo" tabIndex={-1} className="mx-auto outline-none flex w-full max-w-7xl min-w-0 flex-1 flex-col px-4 py-6">
+      <main
+        id="conteudo"
+        tabIndex={-1}
+        className="mx-auto flex w-full max-w-7xl min-w-0 flex-1 flex-col px-4 py-6 outline-none"
+      >
         {children}
       </main>
       {/* Painel do item: abre em qualquer tela via ?item=<id> */}
