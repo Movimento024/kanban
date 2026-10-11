@@ -27,6 +27,7 @@ export type ValorData = {
   precisao: PrecisaoData;
   dia: string;
   hora: string;
+  horaFim: string;
   inicio: string;
   fim: string;
   mes: string;
@@ -39,6 +40,7 @@ export const DATA_VAZIA: ValorData = {
   precisao: "a_definir",
   dia: "",
   hora: "",
+  horaFim: "",
   inicio: "",
   fim: "",
   mes: "",
@@ -60,6 +62,7 @@ function previa(v: ValorData): string | null {
   if (v.precisao !== "a_definir" && !inicio) return null;
   if (v.precisao === "periodo" && !v.periodo) return null;
   const periodo = v.periodo || null;
+  const comHorario = v.precisao === "exata" || v.precisao === "intervalo";
   const n = normalizarIntervalo(
     v.precisao,
     inicio,
@@ -70,7 +73,8 @@ function previa(v: ValorData): string | null {
     data_precisao: v.precisao,
     data_inicio: n.inicio,
     data_fim: n.fim,
-    data_hora: v.precisao === "exata" ? v.hora || null : null,
+    data_hora: comHorario ? v.hora || null : null,
+    data_hora_fim: comHorario && v.hora ? v.horaFim || null : null,
     data_periodo: periodo,
   });
 }
@@ -89,6 +93,24 @@ export function SeletorData({
   const set = <K extends keyof ValorData>(k: K, v: ValorData[K]) => aoMudar({ ...valor, [k]: v });
   const erro = (k: string) => erros?.[k] && <p className="text-destructive text-xs">{erros[k]}</p>;
   const textoPrevia = previa(valor);
+  const campoHora = (nome: string, rotulo: string, chave: "hora" | "horaFim") => (
+    <div className="grid gap-1.5">
+      <Label htmlFor={nome}>
+        {rotulo} <span className="text-muted-foreground font-normal">(opcional)</span>
+      </Label>
+      <Input
+        id={nome}
+        name={nome}
+        type="time"
+        className={classeCampo}
+        value={valor[chave]}
+        disabled={chave === "horaFim" && !valor.hora}
+        onChange={(e) => set(chave, e.target.value)}
+        aria-invalid={!!erros?.[nome] || undefined}
+      />
+      {erro(nome)}
+    </div>
+  );
 
   return (
     <fieldset className="grid gap-3 rounded-lg border p-3">
@@ -123,7 +145,7 @@ export function SeletorData({
       </div>
 
       {valor.precisao === "exata" && (
-        <div className="grid grid-cols-[1fr_8rem] gap-2">
+        <div className="grid gap-2">
           <div className="grid gap-1.5">
             <Label htmlFor="data_dia">Dia</Label>
             <Input
@@ -137,52 +159,48 @@ export function SeletorData({
             />
             {erro("data_dia")}
           </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="data_hora">
-              Hora <span className="text-muted-foreground font-normal">(opcional)</span>
-            </Label>
-            <Input
-              id="data_hora"
-              name="data_hora"
-              type="time"
-              className={classeCampo}
-              value={valor.hora}
-              onChange={(e) => set("hora", e.target.value)}
-            />
-            {erro("data_hora")}
+          <div className="grid grid-cols-2 gap-2">
+            {campoHora("data_hora", "Início", "hora")}
+            {campoHora("data_hora_fim", "Término", "horaFim")}
           </div>
+          <p className="text-muted-foreground text-xs">Sem horário, vale o dia inteiro.</p>
         </div>
       )}
 
       {valor.precisao === "intervalo" && (
-        <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-1.5">
-            <Label htmlFor="data_inicio">Início</Label>
-            <Input
-              id="data_inicio"
-              name="data_inicio"
-              type="date"
-              className={classeCampo}
-              value={valor.inicio}
-              onChange={(e) => set("inicio", e.target.value)}
-              aria-invalid={!!erros?.data_inicio || undefined}
-            />
-            {erro("data_inicio")}
+        <div className="grid gap-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="data_inicio">Início</Label>
+              <Input
+                id="data_inicio"
+                name="data_inicio"
+                type="date"
+                className={classeCampo}
+                value={valor.inicio}
+                onChange={(e) => set("inicio", e.target.value)}
+                aria-invalid={!!erros?.data_inicio || undefined}
+              />
+              {erro("data_inicio")}
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="data_fim">Fim</Label>
+              <Input
+                id="data_fim"
+                name="data_fim"
+                type="date"
+                min={valor.inicio || undefined}
+                className={classeCampo}
+                value={valor.fim}
+                onChange={(e) => set("fim", e.target.value)}
+                aria-invalid={!!erros?.data_fim || undefined}
+              />
+              {erro("data_fim")}
+            </div>
+            {campoHora("data_hora", "Hora do início", "hora")}
+            {campoHora("data_hora_fim", "Hora do fim", "horaFim")}
           </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="data_fim">Fim</Label>
-            <Input
-              id="data_fim"
-              name="data_fim"
-              type="date"
-              min={valor.inicio || undefined}
-              className={classeCampo}
-              value={valor.fim}
-              onChange={(e) => set("fim", e.target.value)}
-              aria-invalid={!!erros?.data_fim || undefined}
-            />
-            {erro("data_fim")}
-          </div>
+          <p className="text-muted-foreground text-xs">Sem horário, vale o dia inteiro.</p>
         </div>
       )}
 

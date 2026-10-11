@@ -132,3 +132,63 @@
     @apply font-sans;
   }
 }
+
+/* Calendário da Visão geral (FullCalendar) com as cores do tema. */
+.m024-calendario .fc {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--background);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-neutral-text-color: var(--muted-foreground);
+  --fc-list-event-hover-bg-color: var(--accent);
+  --fc-today-bg-color: transparent;
+  --fc-highlight-color: var(--accent);
+  --fc-now-indicator-color: var(--destructive);
+  --fc-event-text-color: var(--foreground);
+  --fc-small-font-size: 0.75rem;
+  font-size: 0.875rem;
+}
+.m024-calendario .fc a {
+  color: inherit;
+  text-decoration: none;
+}
+.m024-calendario .fc .fc-col-header-cell-cushion,
+.m024-calendario .fc .fc-daygrid-day-number {
+  font-weight: 500;
+}
+.m024-calendario .fc .fc-col-header-cell-cushion::first-letter,
+.m024-calendario .fc .fc-list-day-text::first-letter,
+.m024-calendario .fc .fc-list-day-side-text::first-letter {
+  text-transform: uppercase;
+}
+.m024-calendario .fc .fc-day-today .fc-daygrid-day-number {
+  margin: 2px;
+  min-width: 1.75rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  text-align: center;
+}
+.m024-calendario .fc .fc-col-header-cell.fc-day-today {
+  color: var(--primary);
+  font-weight: 700;
+}
+.m024-calendario .fc .fc-scrollgrid {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.m024-calendario .fc .m024-evento {
+  box-shadow: none;
+  background: var(--background);
+  border-radius: var(--radius-sm);
+}
+.m024-calendario .fc .fc-list-event.m024-evento {
+  background: transparent;
+}
+.m024-calendario .fc .m024-cancelado {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+.m024-calendario .fc .fc-daygrid-more-link {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}

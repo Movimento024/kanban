@@ -309,6 +309,7 @@ export type Database = {
           created_by: string | null;
           data_fim: string | null;
           data_hora: string | null;
+          data_hora_fim: string | null;
           data_inicio: string | null;
           data_periodo: Database["public"]["Enums"]["periodo_ano"] | null;
           data_precisao: Database["public"]["Enums"]["precisao_data"];
@@ -335,6 +336,7 @@ export type Database = {
           created_by?: string | null;
           data_fim?: string | null;
           data_hora?: string | null;
+          data_hora_fim?: string | null;
           data_inicio?: string | null;
           data_periodo?: Database["public"]["Enums"]["periodo_ano"] | null;
           data_precisao?: Database["public"]["Enums"]["precisao_data"];
@@ -360,6 +362,7 @@ export type Database = {
           created_by?: string | null;
           data_fim?: string | null;
           data_hora?: string | null;
+          data_hora_fim?: string | null;
           data_inicio?: string | null;
           data_periodo?: Database["public"]["Enums"]["periodo_ano"] | null;
           data_precisao?: Database["public"]["Enums"]["precisao_data"];
